@@ -1,15 +1,11 @@
 import type { Logger } from '@tg-search/logg'
 
-import type { CoreSentEvents } from './core-events'
+import { CoreError, type CoreSentEvents, type Events } from './core-events'
 
 import { useLogger } from '@tg-search/logg'
 import { EventEmitter } from 'eventemitter3'
 
-export type CoreEventData<T> = T extends (data: infer D) => void ? D : never
-
 export type Service<T> = (ctx: CoreContext) => T
-
-export type Events = Record<string, (...args: any[]) => void | Promise<void>>
 
 export type CoreContext = ReturnType<typeof createCoreContext>
 
@@ -20,17 +16,17 @@ interface CreateCoreContextOptions {
 
 export function createCoreContext<
   EventReceived extends Events,
-  EventSent extends Events & CoreSentEvents,
-  CoreEvents extends Events = EventReceived & EventSent,
+  EventSent extends Events & typeof CoreSentEvents,
+  DefinedEvents extends Events = EventReceived & EventSent,
 >(options: CreateCoreContextOptions = {}) {
   const { logger } = options
 
-  const emitter = new EventEmitter<CoreEvents>()
+  const emitter = new EventEmitter<DefinedEvents>()
 
   const receivedEvents = new Set<keyof EventReceived>()
   const sentEvents = new Set<keyof EventSent>()
 
-  const wrapEmitterOn = (emitter: EventEmitter<CoreEvents>, fn?: (event: keyof EventReceived) => void) => {
+  const wrapEmitterOn = (emitter: EventEmitter<DefinedEvents>, fn?: (event: keyof EventReceived) => void) => {
     const _on = emitter.on.bind(emitter)
 
     emitter.on = (event, listener) => {
@@ -56,7 +52,7 @@ export function createCoreContext<
     }
   }
 
-  const wrapEmitterEmit = (emitter: EventEmitter<CoreEvents>, fn?: (event: keyof EventSent) => void) => {
+  const wrapEmitterEmit = (emitter: EventEmitter<DefinedEvents>, fn?: (event: keyof EventSent) => void) => {
     const _emit = emitter.emit.bind(emitter)
 
     emitter.emit = (event, ...args) => {
@@ -88,7 +84,7 @@ export function createCoreContext<
       return result
     }
     else {
-      emitter.emit('core:error' as keyof CoreEvents, { error })
+      emitter.emit(CoreError)
 
       logger?.withError(error).error(description)
 
