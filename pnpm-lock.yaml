@@ -433,6 +433,9 @@ importers:
       '@tg-search/common':
         specifier: workspace:*
         version: link:../common
+      '@tg-search/core-event':
+        specifier: workspace:*
+        version: link:../core-event
       '@tg-search/db':
         specifier: workspace:*
         version: link:../db
@@ -475,6 +478,15 @@ importers:
       valibot:
         specifier: ^1.1.0
         version: 1.1.0(typescript@5.8.3)
+
+  packages/core-event:
+    dependencies:
+      '@tg-search/logg':
+        specifier: 'catalog:'
+        version: 1.0.0-beta.18(typescript@5.8.3)(unplugin-unused@0.5.1)(vue-tsc@3.0.1(typescript@5.8.3))
+      eventemitter3:
+        specifier: ^5.0.1
+        version: 5.0.1
 
   packages/db:
     dependencies:

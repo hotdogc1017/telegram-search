@@ -1,0 +1,16 @@
+{
+  "name": "@tg-search/core-event",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tg-search/logg": "catalog:",
+    "eventemitter3": "^5.0.1"
+  }
+}

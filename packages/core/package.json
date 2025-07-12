@@ -14,6 +14,7 @@
     "@moeru/std": "0.1.0-beta.6",
     "@node-rs/jieba": "^2.0.1",
     "@tg-search/common": "workspace:*",
+    "@tg-search/core-event": "workspace:*",
     "@tg-search/db": "workspace:*",
     "@tg-search/logg": "catalog:",
     "@tg-search/result": "catalog:",
