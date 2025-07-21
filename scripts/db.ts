@@ -13,10 +13,12 @@ import { getDatabaseDSN, initConfig, useConfig } from '../packages/common/src/no
   const args = process.argv.slice(2)
 
   try {
+    const config = useConfig()
     const child = spawn('pnpm', ['drizzle-kit', ...args], {
       env: {
         ...process.env,
         DATABASE_DSN: dsn,
+        DATABASE_TYPE: config.database.type,
       },
       stdio: 'pipe',
       shell: true,

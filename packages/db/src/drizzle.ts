@@ -31,7 +31,8 @@ let dbInstance: CoreDB
 
 async function applyMigrations(db: CoreDB, dbType: DatabaseType) {
   const logger = useLogger()
-  const migrationsFolder = await getDrizzlePath()
+  const config = useConfig()
+  const migrationsFolder = await getDrizzlePath(config)
   logger.log(`Running migrations from: ${migrationsFolder}`)
 
   try {
@@ -43,7 +44,7 @@ async function applyMigrations(db: CoreDB, dbType: DatabaseType) {
         await migratePGlite(db as PgliteDatabase<Record<string, unknown>>, { migrationsFolder })
         break
       case DatabaseType.DUCKDB:
-        await migrateDuckDB(db as DuckDBWasmDrizzleDatabase<Record<string, unknown>, Promise<any>>, { migrationsFolder })
+        await migrateDuckDB(db as DuckDBWasmDrizzleDatabase<Record<string, unknown>>, { migrationsFolder })
         break
     }
     logger.log('Database migrations applied successfully')
@@ -110,9 +111,9 @@ export async function initDrizzle() {
     case DatabaseType.DUCKDB: {
       // Initialize DuckDB database
       const dbFilePath = getDatabaseFilePath(config)
-      const bounder = await getBundles()
-      logger.log(`Using DuckDB database bounder : ${JSON.stringify(bounder)} file : ${dbFilePath}`)
-      dbInstance = drizzleDuckDB({ connection: { bundles: bounder, storage: { path: dbFilePath, type: DBStorageType.NODE_FS } } }) as CoreDB
+      const bundles = await getBundles()
+      logger.log(`Using DuckDB database bundles : ${JSON.stringify(bundles)} file : ${dbFilePath}`)
+      dbInstance = drizzleDuckDB({ connection: { bundles } }) as CoreDB
       break
     }
 

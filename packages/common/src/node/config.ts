@@ -18,12 +18,18 @@ const logger = useLogger('common:config')
 
 export function getDatabaseDSN(config: Config): string {
   const { database } = config
-  if (database.type === DatabaseType.DUCKDB) {
-    const path = getDatabaseFilePath(config)
-    return database.url || path
-  }
-  else {
-    return database.url || `postgres://${database.user}:${database.password}@${database.host}:${database.port}/${database.database}`
+  switch (database.type) {
+    case DatabaseType.DUCKDB: {
+      const path = getDatabaseFilePath(config)
+      return database.url || path
+    }
+    case DatabaseType.POSTGRES:
+    case DatabaseType.PGLITE:
+      return database.url || `postgres://${database.user}:${database.password}@${database.host}:${database.port}/${database.database}`
+    default:
+      // PGLite is handled separately, and other types are not supported for DSN generation.
+      // Throwing an error for unhandled cases is safer for future maintenance.
+      throw new Error(`Database type "${database.type}" is not supported for DSN generation.`)
   }
 }
 

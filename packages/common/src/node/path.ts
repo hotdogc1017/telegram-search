@@ -60,9 +60,13 @@ export async function useConfigPath(): Promise<string> {
   return configPath
 }
 
-export async function getDrizzlePath(): Promise<string> {
+export async function getDrizzlePath(config?: Config): Promise<string> {
   const workspaceDir = await getWorkspacePath()
-  const drizzlePath = resolve(workspaceDir, 'drizzle')
+  
+  // Use DuckDB-specific migrations folder if database type is DuckDB
+  const migrationFolder = config?.database?.type === DatabaseType.DUCKDB ? 'drizzle-duckdb' : 'drizzle'
+  const drizzlePath = resolve(workspaceDir, migrationFolder)
+  
   logger.withFields({ drizzlePath }).log('Drizzle migrations path')
   return drizzlePath
 }
