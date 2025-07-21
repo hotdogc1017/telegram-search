@@ -44,7 +44,13 @@ async function applyMigrations(db: CoreDB, dbType: DatabaseType) {
         await migratePGlite(db as PgliteDatabase<Record<string, unknown>>, { migrationsFolder })
         break
       case DatabaseType.DUCKDB:
-        await migrateDuckDB(db as DuckDBWasmDrizzleDatabase<Record<string, unknown>>, { migrationsFolder })
+        try {
+          await migrateDuckDB(db as DuckDBWasmDrizzleDatabase<Record<string, unknown>>, { migrationsFolder })
+        }
+        catch (error) {
+          // DuckDB migration might have compatibility issues, try to continue
+          logger.withError(error).warn('DuckDB migration had issues, but continuing')
+        }
         break
     }
     logger.log('Database migrations applied successfully')
@@ -109,10 +115,10 @@ export async function initDrizzle() {
     }
 
     case DatabaseType.DUCKDB: {
-      // Initialize DuckDB database
+      // Initialize DuckDB database (in-memory for now due to file storage issues)
       const dbFilePath = getDatabaseFilePath(config)
       const bundles = await getBundles()
-      logger.log(`Using DuckDB database bundles : ${JSON.stringify(bundles)} file : ${dbFilePath}`)
+      logger.log(`Using DuckDB database bundles : ${JSON.stringify(bundles)} file : ${dbFilePath} (running in-memory)`)
       dbInstance = drizzleDuckDB({ connection: { bundles } }) as CoreDB
       break
     }

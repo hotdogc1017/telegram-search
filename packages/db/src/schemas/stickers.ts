@@ -1,8 +1,12 @@
 // https://github.com/moeru-ai/airi/blob/main/services/telegram-bot/src/db/schema.ts
 
-import { bigint, index, pgTable, text, uniqueIndex, uuid, vector } from 'drizzle-orm/pg-core'
+import { bigint, index, pgTable, text, uniqueIndex, uuid } from 'drizzle-orm/pg-core'
 
 import { bytea } from './type'
+import { vector } from './custom-types'
+
+// Get database type from environment
+const isDuckDB = process.env.DATABASE_TYPE === 'duckdb'
 
 export const stickersTable = pgTable('stickers', {
   id: uuid().primaryKey().defaultRandom(),
@@ -19,9 +23,19 @@ export const stickersTable = pgTable('stickers', {
   description_vector_1536: vector({ dimensions: 1536 }),
   description_vector_1024: vector({ dimensions: 1024 }),
   description_vector_768: vector({ dimensions: 768 }),
-}, table => [
-  uniqueIndex('stickers_platform_file_id_unique').on(table.platform, table.file_id),
-  index('stickers_description_vector_1536_index').using('hnsw', table.description_vector_1536.op('vector_cosine_ops')),
-  index('stickers_description_vector_1024_index').using('hnsw', table.description_vector_1024.op('vector_cosine_ops')),
-  index('stickers_description_vector_768_index').using('hnsw', table.description_vector_768.op('vector_cosine_ops')),
-])
+}, table => {
+  const baseIndexes = [
+    uniqueIndex('stickers_platform_file_id_unique').on(table.platform, table.file_id),
+  ]
+
+  // Add vector indexes only for PostgreSQL (DuckDB doesn't support HNSW)
+  if (!isDuckDB) {
+    baseIndexes.push(
+      index('stickers_description_vector_1536_index').using('hnsw', table.description_vector_1536.op('vector_cosine_ops')),
+      index('stickers_description_vector_1024_index').using('hnsw', table.description_vector_1024.op('vector_cosine_ops')),
+      index('stickers_description_vector_768_index').using('hnsw', table.description_vector_768.op('vector_cosine_ops')),
+    )
+  }
+
+  return baseIndexes
+})

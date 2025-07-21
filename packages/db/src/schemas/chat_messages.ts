@@ -1,6 +1,11 @@
 // https://github.com/moeru-ai/airi/blob/main/services/telegram-bot/src/db/schema.ts
 
-import { bigint, boolean, index, jsonb, pgTable, text, uniqueIndex, uuid, vector } from 'drizzle-orm/pg-core'
+import { bigint, boolean, index, jsonb, pgTable, text, uniqueIndex, uuid } from 'drizzle-orm/pg-core'
+
+import { vector } from './custom-types'
+
+// Get database type from environment
+const isDuckDB = process.env.DATABASE_TYPE === 'duckdb'
 
 export const chatMessagesTable = pgTable('chat_messages', {
   id: uuid().primaryKey().defaultRandom(),
@@ -21,10 +26,20 @@ export const chatMessagesTable = pgTable('chat_messages', {
   content_vector_1024: vector({ dimensions: 1024 }),
   content_vector_768: vector({ dimensions: 768 }),
   jieba_tokens: jsonb().notNull().default([]),
-}, table => [
-  uniqueIndex('chat_messages_platform_platform_message_id_in_chat_id_unique_index').on(table.platform, table.platform_message_id, table.in_chat_id),
-  index('chat_messages_content_vector_1536_index').using('hnsw', table.content_vector_1536.op('vector_cosine_ops')),
-  index('chat_messages_content_vector_1024_index').using('hnsw', table.content_vector_1024.op('vector_cosine_ops')),
-  index('chat_messages_content_vector_768_index').using('hnsw', table.content_vector_768.op('vector_cosine_ops')),
-  index('jieba_tokens_index').using('gin', table.jieba_tokens.op('jsonb_path_ops')),
-])
+}, table => {
+  const baseIndexes = [
+    uniqueIndex('chat_messages_platform_platform_message_id_in_chat_id_unique_index').on(table.platform, table.platform_message_id, table.in_chat_id),
+    index('jieba_tokens_index').using('gin', table.jieba_tokens.op('jsonb_path_ops')),
+  ]
+
+  // Add vector indexes only for PostgreSQL (DuckDB doesn't support HNSW)
+  if (!isDuckDB) {
+    baseIndexes.push(
+      index('chat_messages_content_vector_1536_index').using('hnsw', table.content_vector_1536.op('vector_cosine_ops')),
+      index('chat_messages_content_vector_1024_index').using('hnsw', table.content_vector_1024.op('vector_cosine_ops')),
+      index('chat_messages_content_vector_768_index').using('hnsw', table.content_vector_768.op('vector_cosine_ops')),
+    )
+  }
+
+  return baseIndexes
+})
