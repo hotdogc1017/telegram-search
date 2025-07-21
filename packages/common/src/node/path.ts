@@ -20,10 +20,12 @@ export function getDatabaseFilePath(config: Config): string {
     case DatabaseType.PGLITE:
       extension = '.pglite'
       break
+    case DatabaseType.DUCKDB:
+      extension = '.duckdb'
+      break
     default:
       return ''
   }
-
   return join(configPath.storage, `db${extension}`)
 }
 

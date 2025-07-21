@@ -9,16 +9,22 @@ import { join } from 'pathe'
 import { safeParse } from 'valibot'
 import { parse, stringify } from 'yaml'
 
-import { configSchema } from '../browser/config-schema'
+import { configSchema, DatabaseType } from '../browser/config-schema'
 import { generateDefaultConfig } from '../browser/default-config'
-import { resolveStoragePath, useAssetsPath, useConfigPath } from './path'
+import { getDatabaseFilePath, resolveStoragePath, useAssetsPath, useConfigPath } from './path'
 
 let config: Config
 const logger = useLogger('common:config')
 
 export function getDatabaseDSN(config: Config): string {
   const { database } = config
-  return database.url || `postgres://${database.user}:${database.password}@${database.host}:${database.port}/${database.database}`
+  if (database.type === DatabaseType.DUCKDB) {
+    const path = getDatabaseFilePath(config)
+    return database.url || path
+  }
+  else {
+    return database.url || `postgres://${database.user}:${database.password}@${database.host}:${database.port}/${database.database}`
+  }
 }
 
 export async function initConfig(): Promise<Config> {

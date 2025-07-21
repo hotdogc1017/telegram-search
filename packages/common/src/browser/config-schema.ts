@@ -21,6 +21,7 @@ export enum EmbeddingDimension {
 export enum DatabaseType {
   POSTGRES = 'postgres',
   PGLITE = 'pglite',
+  DUCKDB = 'duckdb',
 }
 
 export const proxyConfigSchema = object({

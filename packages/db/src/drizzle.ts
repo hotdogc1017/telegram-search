@@ -1,8 +1,12 @@
+import type { DuckDBWasmDatabase, DuckDBWasmDrizzleDatabase } from '@proj-airi/drizzle-duckdb-wasm'
 import type { PgliteDatabase } from 'drizzle-orm/pglite'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 
 import { PGlite } from '@electric-sql/pglite'
 import { vector } from '@electric-sql/pglite/vector'
+import { DBStorageType, drizzle as drizzleDuckDB } from '@proj-airi/drizzle-duckdb-wasm'
+import { getBundles } from '@proj-airi/drizzle-duckdb-wasm/bundles/default-node'
+import { migrate as migrateDuckDB } from '@proj-airi/drizzle-duckdb-wasm/migrator'
 import { DatabaseType, flags } from '@tg-search/common'
 import { getDatabaseDSN, getDatabaseFilePath, getDrizzlePath, useConfig } from '@tg-search/common/node'
 import { useLogger } from '@tg-search/logg'
@@ -21,6 +25,7 @@ interface BaseDB {
 export type CoreDB
   = | (PostgresJsDatabase<Record<string, unknown>> & { $client: ReturnType<typeof postgres> } & BaseDB)
     | (PgliteDatabase<Record<string, unknown>> & { $client: PGlite } & BaseDB)
+    | (DuckDBWasmDatabase<Record<string, unknown>> & BaseDB)
 
 let dbInstance: CoreDB
 
@@ -36,6 +41,9 @@ async function applyMigrations(db: CoreDB, dbType: DatabaseType) {
         break
       case DatabaseType.PGLITE:
         await migratePGlite(db as PgliteDatabase<Record<string, unknown>>, { migrationsFolder })
+        break
+      case DatabaseType.DUCKDB:
+        await migrateDuckDB(db as DuckDBWasmDrizzleDatabase<Record<string, unknown>, Promise<any>>, { migrationsFolder })
         break
     }
     logger.log('Database migrations applied successfully')
@@ -96,6 +104,15 @@ export async function initDrizzle() {
         logger.withError(error).error('Failed to initialize PGlite database')
         throw error
       }
+      break
+    }
+
+    case DatabaseType.DUCKDB: {
+      // Initialize DuckDB database
+      const dbFilePath = getDatabaseFilePath(config)
+      const bounder = await getBundles()
+      logger.log(`Using DuckDB database bounder : ${JSON.stringify(bounder)} file : ${dbFilePath}`)
+      dbInstance = drizzleDuckDB({ connection: { bundles: bounder, storage: { path: dbFilePath, type: DBStorageType.NODE_FS } } }) as CoreDB
       break
     }
 
