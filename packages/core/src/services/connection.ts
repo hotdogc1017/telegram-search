@@ -12,7 +12,7 @@ import { Api, TelegramClient } from 'telegram'
 import { waitForEvent } from '../utils/promise'
 
 export interface ConnectionEventToCore {
-  'auth:login': (data: { phoneNumber: string }) => void
+  'auth:login': (data: { phoneNumber: string, fastLogin: boolean }) => void
   'auth:logout': () => void
   'auth:code': (data: { code: string }) => void
   'auth:password': (data: { password: string }) => void
@@ -21,6 +21,7 @@ export interface ConnectionEventToCore {
 export interface ConnectionEventFromCore {
   'auth:code:needed': () => void
   'auth:password:needed': () => void
+  'auth:login:needed': () => void
   'auth:connected': () => void
   'auth:error': (data: { error: unknown }) => void
 }
@@ -93,8 +94,9 @@ export function createConnectionService(ctx: CoreContext) {
     async function login(loginOptions: {
       phoneNumber: string
       session: StringSession
+      fastLogin: boolean
     }): Promise<Result<TelegramClient>> {
-      const { phoneNumber, session } = loginOptions
+      const { phoneNumber, session, fastLogin } = loginOptions
 
       try {
         const client = (await init({ session })).expect('Failed to initialize Telegram client')
@@ -108,6 +110,10 @@ export function createConnectionService(ctx: CoreContext) {
         }
 
         const isAuthorized = await client.isUserAuthorized()
+        if (!isAuthorized && fastLogin) {
+          emitter.emit('auth:login:needed')
+          return Err(null)
+        }
         if (!isAuthorized) {
           logger.verbose('User is not authorized, signing in')
 

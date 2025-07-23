@@ -11,12 +11,12 @@ export function registerAuthEventHandlers(ctx: CoreContext) {
     configuredConnectionService: ConnectionService,
     sessionService: SessionService,
   ) => {
-    emitter.on('auth:login', async ({ phoneNumber }) => {
+    emitter.on('auth:login', async ({ phoneNumber, fastLogin }) => {
       const session = (await sessionService.loadSession(phoneNumber)).expect('Failed to load session')
 
       logger.withFields({ session }).verbose('Loaded session')
 
-      await configuredConnectionService.login({ phoneNumber, session })
+      await configuredConnectionService.login({ phoneNumber, session, fastLogin })
       logger.verbose('Logged in to Telegram')
     })
 

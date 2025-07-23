@@ -12,6 +12,10 @@ export function registerAuthEventHandlers(
     useAuthStore().auth.needCode = true
   })
 
+  registerEventHandler('auth:login:needed', () => {
+    useAuthStore().auth.needLogin = true
+  })
+
   registerEventHandler('auth:password:needed', () => {
     useAuthStore().auth.needPassword = true
   })

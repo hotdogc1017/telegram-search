@@ -1,7 +1,7 @@
 import type { CoreUserEntity } from '@tg-search/core'
 
 import { defineStore } from 'pinia'
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import { useChatStore } from './useChat'
 import { useWebsocketStore } from './useWebsocket'
@@ -18,18 +18,23 @@ export const useAuthStore = defineStore('session', () => {
   const authStatus = ref({
     needCode: false,
     needPassword: false,
+    needLogin: false,
     isLoading: false,
   })
 
   const activeSessionComputed = computed(() => websocketStore.getActiveSession())
-  const isLoggedInComputed = computed(() => activeSessionComputed.value?.isConnected)
+  const isLoggedInComputed = computed(() => activeSessionComputed.value?.isConnected || authStatus.value.needLogin)
 
   const attemptLogin = async () => {
     const activeSession = websocketStore.getActiveSession()
     if (!activeSession?.isConnected && activeSession?.phoneNumber) {
-      handleAuth().login(activeSession.phoneNumber)
+      handleAuth().login(activeSession.phoneNumber, true)
     }
   }
+
+  onMounted(async () => {
+    await attemptLogin()
+  })
 
   watch(() => activeSessionComputed.value?.isConnected, (isConnected) => {
     if (isConnected) {
@@ -39,7 +44,7 @@ export const useAuthStore = defineStore('session', () => {
   }, { immediate: true })
 
   function handleAuth() {
-    function login(phoneNumber: string) {
+    function login(phoneNumber: string, fastLogin: boolean) {
       const session = websocketStore.sessions.get(websocketStore.activeSessionId)
 
       if (session)
@@ -47,6 +52,7 @@ export const useAuthStore = defineStore('session', () => {
 
       websocketStore.sendEvent('auth:login', {
         phoneNumber,
+        fastLogin,
       })
     }
 

@@ -71,7 +71,7 @@ async function handleLogin() {
   try {
     switch (state.value.currentStep) {
       case 'phone':
-        login(state.value.phoneNumber)
+        login(state.value.phoneNumber, false)
         break
       case 'code':
         submitCode(state.value.verificationCode)
