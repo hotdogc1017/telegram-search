@@ -86,6 +86,18 @@ const finalError = computed(() => {
   return processedMedia.value.error || runtimeError.value
 })
 
+const messageWithLinks = computed(() => {
+  if (!props.message.content)
+    return []
+  const urlRegex = /(https?:\/\/\S+)/g
+  return props.message.content.split(urlRegex)
+    .filter(Boolean) // remove empty strings
+    .map(part => ({
+      isLink: /^https?:\/\//.test(part),
+      text: part,
+    }))
+})
+
 let animation: AnimationItem | null = null
 const tgsContainer = ref<HTMLElement | null>(null)
 
@@ -125,7 +137,17 @@ onUnmounted(() => {
 
 <template>
   <div v-if="message.content" class="mb-2 whitespace-pre-wrap text-gray-900 dark:text-gray-100">
-    {{ message.content }}
+    <template v-for="(part, i) in messageWithLinks" :key="i">
+      <a
+        v-if="part.isLink" :href="part.text" target="_blank"
+        class="text-blue-600 dark:text-blue-400 hover:underline"
+      >
+        {{ part.text }}
+      </a>
+      <template v-else>
+        {{ part.text }}
+      </template>
+    </template>
   </div>
 
   <!-- Loading state -->
