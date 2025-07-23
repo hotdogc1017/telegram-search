@@ -20,6 +20,7 @@ export function createMediaResolver(ctx: CoreContext): MessageResolver {
 
       for (const message of opts.messages) {
         if (!message.media || message.media.length === 0) {
+          yield message
           continue
         }
 
