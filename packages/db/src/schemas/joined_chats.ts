@@ -1,4 +1,4 @@
-import { bigint, pgTable, text, uniqueIndex, uuid } from 'drizzle-orm/pg-core'
+import { bigint, pgTable, text, uuid } from 'drizzle-orm/pg-core'
 
 import { bytea } from './type'
 

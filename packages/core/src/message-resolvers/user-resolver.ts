@@ -7,7 +7,6 @@ import { Buffer } from 'node:buffer'
 
 import { getPhotoByUserEntity, recordJoinedChat } from '@tg-search/db'
 import { useLogger } from '@tg-search/logg'
-import { Ok } from '@tg-search/result'
 
 import { resolveEntity } from '../utils/entity'
 
