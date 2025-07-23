@@ -147,7 +147,7 @@ onUnmounted(() => {
     />
 
     <img
-      v-else-if="processedMedia.mimeType?.startsWith('image/')"
+      v-else-if="processedMedia.mimeType?.startsWith('image/') && processedMedia.type !== 'profile_photo'"
       :src="processedMedia.src" class="h-auto max-w-xs rounded-lg" alt="Image"
       @error="runtimeError = 'Image failed to load'"
     >

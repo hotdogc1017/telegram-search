@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CoreMessageMediaFromBlob } from '@tg-search/core'
 import type { CoreMessage } from '@tg-search/core/types'
 
 import { computed } from 'vue'
@@ -15,6 +16,13 @@ const formattedTimestamp = computed(() => {
     return ''
   return new Date(props.message.platformTimestamp * 1000).toLocaleString()
 })
+
+// 头像 base64 处理
+const avatarSrc = computed(() => {
+  const profilePhoto = props.message.media?.find(m => m.type === 'profile_photo') as CoreMessageMediaFromBlob
+
+  return profilePhoto?.blobUrl || undefined
+})
 </script>
 
 <template>
@@ -22,6 +30,7 @@ const formattedTimestamp = computed(() => {
     <div class="mt-1">
       <Avatar
         :name="message.fromName"
+        :src="avatarSrc"
         size="md"
       />
     </div>

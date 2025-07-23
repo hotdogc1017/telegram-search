@@ -26,11 +26,15 @@ export type CoreMessageMediaWebPage = CoreMessageMediaBase & {
   type: 'webpage'
 }
 
+export type CoreMessageMediaProfilePhoto = CoreMessageMediaBase & {
+  type: 'profile_photo'
+}
+
 export type CoreMessageMediaUnknown = CoreMessageMediaBase & {
   type: 'unknown'
 }
 
-type CoreMessageMedia = CoreMessageMediaPhoto | CoreMessageMediaSticker | CoreMessageMediaDocument | CoreMessageMediaWebPage | CoreMessageMediaUnknown
+type CoreMessageMedia = CoreMessageMediaPhoto | CoreMessageMediaSticker | CoreMessageMediaDocument | CoreMessageMediaWebPage | CoreMessageMediaProfilePhoto | CoreMessageMediaUnknown
 
 export type CoreMessageMediaFromServer = CoreMessageMedia & {
   apiMedia?: unknown // Api.TypeMessageMedia

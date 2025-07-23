@@ -58,6 +58,17 @@ export function createMediaResolver(ctx: CoreContext): MessageResolver {
               }
             }
 
+            // Handle profile_photo type - use the byte data directly since it's already stored
+            if (media.type === 'profile_photo' && media.byte) {
+              return {
+                messageUUID: message.uuid,
+                byte: media.byte,
+                type: media.type,
+                platformId: media.platformId,
+                mimeType: (await fileTypeFromBuffer(media.byte))?.mime,
+              } satisfies CoreMessageMediaFromCache
+            }
+
             const mediaFetched = await ctx.getClient().downloadMedia(media.apiMedia as Api.TypeMessageMedia)
             const byte = mediaFetched instanceof Buffer ? mediaFetched : undefined
             return {
