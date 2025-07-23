@@ -26,20 +26,8 @@ async function extractPhoto(ctx: CoreContext, entity: EntityLike) {
     const existingPhoto = (await getPhotoByUserEntity(entityId)).unwrap()
 
     if (existingPhoto && existingPhoto.photo_bytes) {
-      // 只有 User 类型才有 photo 属性
-      const currentPhotoId = 'photo' in (entityObj ?? {}) ? (entityObj as any).photo?.photoId : undefined
-
-      if (currentPhotoId && existingPhoto.photo_id && currentPhotoId === existingPhoto.photo_id) {
-        logger.debug('Photo exists in database and photo_id matches, returning cached photo')
-        return existingPhoto.photo_bytes
-      }
-
-      if (!currentPhotoId && !existingPhoto.photo_id) {
-        logger.debug('Both current and stored photo_id are null, returning cached photo')
-        return existingPhoto.photo_bytes
-      }
-
-      logger.debug('Photo_id changed, need to download new photo')
+      logger.debug('Photo exists in database, returning cached photo')
+      return existingPhoto.photo_bytes
     }
 
     logger.debug('Downloading profile photo from Telegram')
