@@ -49,7 +49,7 @@ async function extractPhoto(ctx: CoreContext, entity: EntityLike) {
       // resolveEntity 需要 Entity 类型
       const resolvedEntity = entityObj ? resolveEntity(entityObj).orUndefined() : undefined
       // 只有 User 类型才有 photo 属性
-      const photoId = 'photo' in (entityObj ?? {}) ? (entityObj as any).photo?.photoId : null
+      const photoId = 'photo' in (entityObj ?? {}) ? (entityObj as any).photo?.photoId : undefined
       await recordJoinedChat({
         platform: 'telegram',
         chat_id: entityId,
