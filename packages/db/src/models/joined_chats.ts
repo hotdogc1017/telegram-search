@@ -1,9 +1,10 @@
 import { eq } from 'drizzle-orm'
 
+import { must0 } from '@tg-search/db/utils'
+import { Ok } from '@tg-search/result'
+
 import { withDb } from '../db'
 import { joinedChatsTable } from '../schemas/joined_chats'
-import { Ok } from '@tg-search/result'
-import { must0 } from '@tg-search/db/utils'
 
 export type JoinedChat = typeof joinedChatsTable.$inferSelect
 export type NewJoinedChat = typeof joinedChatsTable.$inferInsert
