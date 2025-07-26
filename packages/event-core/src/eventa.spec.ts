@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { createContext, defineInvoke, defineInvokeEvent, defineInvokeHandler } from './eventa'
+import { createContext, defineInvoke, defineInvokeEvent, defineInvokeHandler, defineStreamInvoke, defineStreamInvokeHandler } from './eventa'
 
 describe('eventSystem', () => {
   describe('defineInvokeEvent', () => {
     it('should create server and client events', () => {
       const events = defineInvokeEvent<{ name: string }, { id: string }>()
-      expect(events.serverEvent).toBeTypeOf('symbol')
-      expect(events.clientEvent).toBeTypeOf('symbol')
-      expect(events.serverEvent).not.toBe(events.clientEvent)
+      expect(events.inboundEvent).toBeTypeOf('symbol')
+      expect(events.outboundEvent).toBeTypeOf('symbol')
+      expect(events.inboundEvent).not.toBe(events.outboundEvent)
     })
   })
 
@@ -103,6 +103,47 @@ describe('eventSystem', () => {
       expect(result).toEqual({ id: 'alice-25' })
     })
 
+    it('should handle request-stream-response pattern', async () => {
+      const ctx = createContext()
+
+      interface Progress { type: 'progress', progress: number }
+      interface Result { type: 'result', result: boolean }
+
+      const events = defineInvokeEvent<{ name: string, age: number }, Progress | Result>()
+
+      defineStreamInvokeHandler(ctx, events, ({ name, age }) => {
+        return (async function* () {
+          // do progress for 5 times
+        // and result for 1 time
+
+        for (let i = 0; i < 5; i++) {
+          yield { type: 'progress', progress: (i + 1) * 20 }
+        }
+
+        yield { type: 'result', result: true }
+        })
+      })
+
+      const invoke = defineStreamInvoke(ctx, events)
+
+      let progressCalled = 0
+      let resultCalled = 0
+
+      for await (const streamResult of invoke({ name: 'alice', age: 25 })) {
+        switch (streamResult.type) {
+          case 'progress':
+            progressCalled++
+            break
+          case 'result':
+            resultCalled++
+            break
+        }
+      }
+
+      expect(progressCalled).toBeGreaterThan(0)
+      expect(resultCalled).toBe(1)
+    })
+
     it('should handle multiple concurrent invokes', async () => {
       const serverCtx = createContext()
       const clientCtx = createContext()
@@ -118,8 +159,8 @@ describe('eventSystem', () => {
       const promise2 = invoke({ value: 20 })
 
       setTimeout(() => {
-        clientCtx.emit(events.clientEvent, { result: 20 })
-        clientCtx.emit(events.clientEvent, { result: 40 })
+        clientCtx.emit(events.outboundEvent, { result: 20 })
+        clientCtx.emit(events.outboundEvent, { result: 40 })
       }, 0.1)
 
       const [result1, result2] = await Promise.all([promise1, promise2])

@@ -1,24 +1,25 @@
 interface InvokeEventConstraint<_Req, _Res> {}
+
 type SymbolEvent<Req, Res> = symbol & InvokeEventConstraint<Req, Res>
 
 // type ServerInvokeHandlerEvent<Req, Res> = symbol & InvokeEventConstraint<Req, Res>
 // type ClientInvoke<Req> = symbol & InvokeEventConstraint<Req, null>
 
 enum EventType {
-  ServerEvent,
-  ClientEvent,
+  InboundEvent,
+  OutboundEvent,
 }
 
-type ServerEvent<Req, Res> = SymbolEvent<Req, Res> & { type: EventType.ServerEvent }
-type ClientEvent<Req, Res> = SymbolEvent<Req, Res> & { type: EventType.ClientEvent }
+type InboundEvent<Req, Res> = SymbolEvent<Req, Res> & { type: EventType.InboundEvent }
+type OutboundEvent<Req, Res> = SymbolEvent<Req, Res> & { type: EventType.OutboundEvent }
 
 export function defineInvokeEvent<Req, Res>() {
-  const serverEvent = Symbol(EventType.ServerEvent) as ServerEvent<Req, Res>
-  const clientEvent = Symbol(EventType.ClientEvent) as ClientEvent<Req, Res>
+  const inboundEvent = Symbol(EventType.InboundEvent) as InboundEvent<Req, Res>
+  const outboundEvent = Symbol(EventType.OutboundEvent) as OutboundEvent<Req, Res>
 
   return {
-    serverEvent,
-    clientEvent,
+    inboundEvent,
+    outboundEvent,
   }
 }
 
@@ -66,6 +67,7 @@ export function createContext() {
         if (!onceListeners.has(event)) {
           onceListeners.set(event, new Set())
         }
+
         onceListeners.get(event)?.add((data) => {
           try {
             const result = listener(data)
@@ -84,15 +86,41 @@ type EventContext = ReturnType<typeof createContext>
 
 export function defineInvoke<Req, Res>(clientCtx: EventContext, event: InvokeEvent<Req, Res>) {
   return (req: Req) => new Promise<Res>((resolve) => {
-    clientCtx.until(event.clientEvent, resolve) // on: event_response
-
-    clientCtx.emit(event.serverEvent, req) // emit: event_trigger
+    clientCtx.until(event.outboundEvent, resolve) // on: event_response
+    clientCtx.emit(event.inboundEvent, req) // emit: event_trigger
   })
 }
 
+export function defineStreamInvoke<Req, Res>(clientCtx: EventContext, event: InvokeEvent<Req, Res>) {
+  return (req: Req) => {
+    const stream = new ReadableStream<Res>({
+      start(controller) {
+        clientCtx.on(event.outboundEvent, (res: Res) => {
+          controller.enqueue(res)
+        })
+      },
+      cancel() {
+        clientCtx.off(event.outboundEvent)
+      },
+    })
+
+    clientCtx.emit(event.inboundEvent, req) // emit: event_trigger
+    return stream
+  }
+}
+
 export function defineInvokeHandler<Req, Res>(serverCtx: EventContext, event: InvokeEvent<Req, Res>, fn: (params: Req) => Res) {
-  serverCtx.on(event.serverEvent, (params) => { // on: event_trigger
-    serverCtx.emit(event.clientEvent, fn(params)) // emit: event_response
+  serverCtx.on(event.inboundEvent, (params) => { // on: event_trigger
+    serverCtx.emit(event.outboundEvent, fn(params)) // emit: event_response
+  })
+}
+
+export function defineStreamInvokeHandler<Req, Res>(serverCtx: EventContext, event: InvokeEvent<Req, Res>, fn: (params: Req) => AsyncGenerator<Res>) {
+  serverCtx.on(event.inboundEvent, async (params) => { // on: event_trigger
+    const generator = fn(params)
+    for await (const res of generator) {
+      serverCtx.emit(event.outboundEvent, res) // emit: event_response
+    }
   })
 }
 
