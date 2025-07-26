@@ -133,6 +133,51 @@ export function defineStreamInvokeHandler<Req, Res>(serverCtx: EventContext, eve
   })
 }
 
+export function toStreamHandler<Req, Res>(handler: (context: { params: Req, emit: (data: Res) => void }) => Promise<void>): (params: Req) => AsyncGenerator<Res, void, unknown> {
+  return (params) => {
+    const values: Promise<[Res, boolean]>[] = []
+    let resolve: (x: [Res, boolean]) => void
+    let handlerError: Error | null = null
+
+    values.push(new Promise((r) => {
+      resolve = r
+    }))
+
+    const emit = (data: Res) => {
+      resolve([data, false])
+      values.push(new Promise((r) => {
+        resolve = r
+      }))
+    }
+
+    // Start the handler and mark completion when done
+    handler({ params, emit })
+      .then(() => {
+        resolve([undefined as any, true])
+      })
+      .catch((err) => {
+        handlerError = err
+        resolve([undefined as any, true])
+      })
+
+    return (async function* () {
+      let val: Res
+      for (let i = 0, done = false; !done; i++) {
+        [val, done] = await values[i]
+        delete values[i] // Clean up memory
+
+        if (handlerError) {
+          throw handlerError
+        }
+
+        if (!done) {
+          yield val
+        }
+      }
+    }())
+  }
+}
+
 // // Server
 // const serverCtx = createContext()
 // const invokeEvent = defineInvokeEvent<{ name: string, age: number }, { id: string }>()
