@@ -115,7 +115,7 @@ export function defineInvokeHandler<Req, Res>(serverCtx: EventContext, event: In
   })
 }
 
-export function defineStreamInvokeHandler<Req, Res>(serverCtx: EventContext, event: InvokeEvent<Req, Res>, fn: (params: Req) => AsyncGenerator<Res>) {
+export function defineStreamInvokeHandler<Req, Res>(serverCtx: EventContext, event: InvokeEvent<Req, Res>, fn: (params: Req) => AsyncGenerator<Res, void, unknown>) {
   serverCtx.on(event.inboundEvent, async (params) => { // on: event_trigger
     const generator = fn(params)
     for await (const res of generator) {

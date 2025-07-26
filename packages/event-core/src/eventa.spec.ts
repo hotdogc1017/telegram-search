@@ -112,16 +112,16 @@ describe('eventSystem', () => {
       const events = defineInvokeEvent<{ name: string, age: number }, Progress | Result>()
 
       defineStreamInvokeHandler(ctx, events, ({ name, age }) => {
-        return (async function* () {
+        return async function* () {
           // do progress for 5 times
-        // and result for 1 time
+          // and result for 1 time
 
-        for (let i = 0; i < 5; i++) {
-          yield { type: 'progress', progress: (i + 1) * 20 }
-        }
+          for (let i = 0; i < 5; i++) {
+            yield { type: 'progress', progress: (i + 1) * 20 } as Progress
+          }
 
-        yield { type: 'result', result: true }
-        })
+          yield { type: 'result', result: true } as Result
+        }()
       })
 
       const invoke = defineStreamInvoke(ctx, events)
