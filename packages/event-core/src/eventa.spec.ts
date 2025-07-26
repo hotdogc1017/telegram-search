@@ -81,27 +81,25 @@ describe('eventSystem', () => {
 
   describe('invokeSystem', () => {
     it('should handle request-response pattern', async () => {
-      const serverCtx = createContext()
-      const clientCtx = createContext()
+      const ctx = createContext()
       const events = defineInvokeEvent<{ name: string, age: number }, { id: string }>()
 
-      defineInvokeHandler(serverCtx, events, ({ name, age }) => ({
+      defineInvokeHandler(ctx, events, ({ name, age }) => ({
         id: `${name}-${age}`,
       }))
 
-      const invoke = defineInvoke(clientCtx, events)
+      const invoke = defineInvoke(ctx, events)
 
-      const responsePromise = invoke({ name: 'alice', age: 25 })
+      const result = await invoke({ name: 'alice', age: 25 })
 
-      setTimeout(() => {
-        serverCtx.emit(events.serverEvent, { name: 'alice', age: 25 })
-      }, 0)
+      // setTimeout(() => {
+      //   serverCtx.emit(events.serverEvent, { name: 'alice', age: 25 })
+      // }, 0)
 
-      setTimeout(() => {
-        clientCtx.emit(events.clientEvent, { id: 'alice-25' })
-      }, 0)
+      // setTimeout(() => {
+      //   clientCtx.emit(events.clientEvent, { id: 'alice-25' })
+      // }, 0)
 
-      const result = await responsePromise
       expect(result).toEqual({ id: 'alice-25' })
     })
 

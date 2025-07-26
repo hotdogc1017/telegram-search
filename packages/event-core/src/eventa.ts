@@ -29,6 +29,9 @@ export function createContext() {
   const onceListeners = new Map<SymbolEvent<any, any>, Set<(params: any) => any>>()
 
   return {
+    // listeners,
+    // onceListeners,
+
     emit<Req, Res>(event: SymbolEvent<Req, Res>, params: Req | Res) {
       for (const listener of listeners.get(event) || []) {
         listener(params)
@@ -58,7 +61,7 @@ export function createContext() {
       listeners.delete(event)
     },
 
-    until<Req, Res>(event: SymbolEvent<Req, Res>, listener: (params: Req) => Res): Promise<Res> {
+    until<Req, Res>(event: SymbolEvent<Req, Res>, listener: (params: Req) => any): Promise<Res> {
       return new Promise((resolve, reject) => {
         if (!onceListeners.has(event)) {
           onceListeners.set(event, new Set())
@@ -80,13 +83,11 @@ export function createContext() {
 type EventContext = ReturnType<typeof createContext>
 
 export function defineInvoke<Req, Res>(clientCtx: EventContext, event: InvokeEvent<Req, Res>) {
-  return (req: Req) => {
-    clientCtx.emit(event.serverEvent, req) // emit: event_trigger
+  return (req: Req) => new Promise<Res>((resolve) => {
+    clientCtx.until(event.clientEvent, resolve) // on: event_response
 
-    return clientCtx.until(event.clientEvent, (params: Res) => { // on: event_response
-      return params
-    })
-  }
+    clientCtx.emit(event.serverEvent, req) // emit: event_trigger
+  })
 }
 
 export function defineInvokeHandler<Req, Res>(serverCtx: EventContext, event: InvokeEvent<Req, Res>, fn: (params: Req) => Res) {
