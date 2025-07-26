@@ -8,18 +8,22 @@ type SymbolEvent<Req, Res> = symbol & InvokeEventConstraint<Req, Res>
 enum EventType {
   InboundEvent,
   OutboundEvent,
+  OutboundEventStreamEnd,
 }
 
 type InboundEvent<Req, Res> = SymbolEvent<Req, Res> & { type: EventType.InboundEvent }
 type OutboundEvent<Req, Res> = SymbolEvent<Req, Res> & { type: EventType.OutboundEvent }
+type OutboundEventStreamEnd<Req, Res> = SymbolEvent<Req, Res> & { type: EventType.OutboundEventStreamEnd }
 
 export function defineInvokeEvent<Req, Res>() {
   const inboundEvent = Symbol(EventType.InboundEvent) as InboundEvent<Req, Res>
   const outboundEvent = Symbol(EventType.OutboundEvent) as OutboundEvent<Req, Res>
+  const outboundEventStreamEnd = Symbol(EventType.OutboundEventStreamEnd) as OutboundEventStreamEnd<Req, Res>
 
   return {
     inboundEvent,
     outboundEvent,
+    outboundEventStreamEnd,
   }
 }
 
@@ -98,6 +102,9 @@ export function defineStreamInvoke<Req, Res>(clientCtx: EventContext, event: Inv
         clientCtx.on(event.outboundEvent, (res: Res) => {
           controller.enqueue(res)
         })
+        clientCtx.on(event.outboundEventStreamEnd, () => {
+          controller.close()
+        })
       },
       cancel() {
         clientCtx.off(event.outboundEvent)
@@ -121,6 +128,8 @@ export function defineStreamInvokeHandler<Req, Res>(serverCtx: EventContext, eve
     for await (const res of generator) {
       serverCtx.emit(event.outboundEvent, res) // emit: event_response
     }
+
+    serverCtx.emit(event.outboundEventStreamEnd, undefined as any) // emit: event_stream_end
   })
 }
 

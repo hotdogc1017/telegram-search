@@ -106,22 +106,22 @@ describe('eventSystem', () => {
     it('should handle request-stream-response pattern', async () => {
       const ctx = createContext()
 
+      interface Parameter { name: string, age: number }
       interface Progress { type: 'progress', progress: number }
       interface Result { type: 'result', result: boolean }
 
       const events = defineInvokeEvent<{ name: string, age: number }, Progress | Result>()
 
       defineStreamInvokeHandler(ctx, events, ({ name, age }) => {
-        return async function* () {
-          // do progress for 5 times
-          // and result for 1 time
+        return (async function* () {
+          yield { name, age } as Parameter
 
           for (let i = 0; i < 5; i++) {
             yield { type: 'progress', progress: (i + 1) * 20 } as Progress
           }
 
           yield { type: 'result', result: true } as Result
-        }()
+        }())
       })
 
       const invoke = defineStreamInvoke(ctx, events)
@@ -140,7 +140,7 @@ describe('eventSystem', () => {
         }
       }
 
-      expect(progressCalled).toBeGreaterThan(0)
+      expect(progressCalled).toBe(5)
       expect(resultCalled).toBe(1)
     })
 
