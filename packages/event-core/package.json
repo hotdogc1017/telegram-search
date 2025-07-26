@@ -16,6 +16,9 @@
     "build": "tsdown",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "nanoid": "^5.1.5"
+  },
   "devDependencies": {
     "tsdown": "^0.12.9"
   }
