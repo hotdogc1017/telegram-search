@@ -3,11 +3,11 @@ import type { EventContextEmitFn } from '../../context'
 import type { EventTag } from '../../eventa'
 
 import { generateWebsocketPayload, parseWebsocketPayload } from '..'
-import { defineInvokeEventa } from '../../invoke-shared'
+import { defineEventa } from '../../eventa'
 
-export const wsConnectedEvent = defineInvokeEventa<{ url: string }, object>()
-export const wsDisconnectedEvent = defineInvokeEventa<{ url: string }, object>()
-export const wsErrorEvent = defineInvokeEventa<{ error: unknown }, object>()
+export const wsConnectedEvent = defineEventa<{ url: string }>()
+export const wsDisconnectedEvent = defineEventa<{ url: string }>()
+export const wsErrorEvent = defineEventa<{ error: unknown }>()
 
 export function createWsAdapter(url: string): EventaAdapter {
   return (emit: EventContextEmitFn) => {

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createH3WsAdapter, wsConnectedEvent, wsDisconnectedEvent, wsErrorEvent } from '.'
 import { createContext } from '../../context'
-import { defineInvokeEventa } from '../../invoke-shared'
+import { defineEventa } from '../../eventa'
 
 describe('h3-ws-adapter', () => {
   let peer: {
@@ -27,19 +27,21 @@ describe('h3-ws-adapter', () => {
   it('should create a h3 ws adapter and handle events', () => {
     const wsAdapter = createH3WsAdapter(createApp(), peers)
     const ctx = createContext({ adapter: wsAdapter })
+    const serverCtx = ctx
     expect(ctx).toBeDefined()
 
-    const testEvent = defineInvokeEventa<string, string>('test')
-
-    // Test sending message
-    ctx.emit(testEvent.inboundEvent, 'hello') // event <-
-    expect(peer.send).toHaveBeenCalledWith(expect.stringContaining('"payload":"hello"'))
+    const toEvent = defineEventa<string>('send')
+    const fromEvent = defineEventa<string>('receive')
 
     // Test receiving message
     const onMessage = vi.fn()
-    ctx.on(testEvent.outboundEvent, onMessage) // <- event_response
-    ctx.emit(testEvent.outboundEvent, 'world') // ???
-    // wsAdapter(ctx.emit).hooks.onReceived(testEvent.outboundEvent, 'world')
+    ctx.on(fromEvent.id, onMessage) // <- event_response
+
+    // Test sending message
+    ctx.emit(toEvent.id, 'hello') // event <-
+    expect(peer.send).toHaveBeenCalledWith(expect.stringContaining('"payload":"hello"'))
+
+    serverCtx.emit(fromEvent.id, 'world') // ???
     expect(onMessage).toHaveBeenCalledWith('world')
   })
 
@@ -51,20 +53,20 @@ describe('h3-ws-adapter', () => {
     const onError = vi.fn()
     const onDisconnect = vi.fn()
 
-    ctx.on(wsConnectedEvent.sendEvent, onConnect)
-    ctx.on(wsErrorEvent.sendEvent, onError)
-    ctx.on(wsDisconnectedEvent.sendEvent, onDisconnect)
+    ctx.on(wsConnectedEvent.id, onConnect)
+    ctx.on(wsErrorEvent.id, onError)
+    ctx.on(wsDisconnectedEvent.id, onDisconnect)
 
     // Simulate connection events
-    ctx.emit(wsConnectedEvent.inboundEvent, { id: peer.id })
+    ctx.emit(wsConnectedEvent.id, { id: peer.id })
     // wsAdapter(ctx.emit).hooks.onReceived(wsConnectedEvent.inboundEvent, { id: peer.id })
     expect(onConnect).toHaveBeenCalledWith({ id: peer.id })
 
     const error = new Error('test error')
-    ctx.emit(wsErrorEvent.inboundEvent, { error })
+    ctx.emit(wsErrorEvent.id, { error })
     expect(onError).toHaveBeenCalledWith({ error })
 
-    ctx.emit(wsDisconnectedEvent.inboundEvent, { id: peer.id })
+    ctx.emit(wsDisconnectedEvent.id, { id: peer.id })
     expect(onDisconnect).toHaveBeenCalledWith({ id: peer.id })
   })
 })

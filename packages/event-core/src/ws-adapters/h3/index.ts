@@ -7,11 +7,11 @@ import type { EventTag } from '../../eventa'
 import { defineWebSocketHandler } from 'h3'
 
 import { generateWebsocketPayload, parseWebsocketPayload } from '..'
-import { defineInvokeEventa } from '../../invoke-shared'
+import { defineEventa } from '../../eventa'
 
-export const wsConnectedEvent = defineInvokeEventa<{ id: string }, object>()
-export const wsDisconnectedEvent = defineInvokeEventa<{ id: string }, object>()
-export const wsErrorEvent = defineInvokeEventa<{ error: unknown }, object>()
+export const wsConnectedEvent = defineEventa<{ id: string }>()
+export const wsDisconnectedEvent = defineEventa<{ id: string }>()
+export const wsErrorEvent = defineEventa<{ error: unknown }>()
 
 // H3 does not export the Peer type directly, so we extract it from the `message` hook of the WebSocket event handler.
 type Hooks = NonNullable<EventHandler['__websocket__']>
@@ -22,16 +22,16 @@ export function createH3WsAdapter(app: App, peers: Set<Peer> = new Set<Peer>()):
     app.use('/ws', defineWebSocketHandler({
       open(peer) {
         peers.add(peer)
-        emit(wsConnectedEvent.sendEvent, { id: peer.id })
+        emit(wsConnectedEvent.id, { id: peer.id })
       },
 
       close(peer) {
         peers.delete(peer)
-        emit(wsDisconnectedEvent.sendEvent, { id: peer.id })
+        emit(wsDisconnectedEvent.id, { id: peer.id })
       },
 
       error(peer, error) {
-        emit(wsErrorEvent.sendEvent, { error })
+        emit(wsErrorEvent.id, { error })
       },
 
       async message(peer, message) {
@@ -40,7 +40,7 @@ export function createH3WsAdapter(app: App, peers: Set<Peer> = new Set<Peer>()):
           emit(type, payload)
         }
         catch (error) {
-          emit(wsErrorEvent.sendEvent, { error })
+          emit(wsErrorEvent.id, { error })
         }
       },
     }))
