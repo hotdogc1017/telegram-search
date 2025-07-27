@@ -1,6 +1,8 @@
+import type { Adapter } from './apapters/browser'
+
 interface InvokeEventConstraint<_Req, _Res> {}
 
-type SymbolEvent<Req, Res> = symbol & InvokeEventConstraint<Req, Res>
+export type SymbolEvent<Req, Res> = symbol & InvokeEventConstraint<Req, Res>
 
 // type ServerInvokeHandlerEvent<Req, Res> = symbol & InvokeEventConstraint<Req, Res>
 // type ClientInvoke<Req> = symbol & InvokeEventConstraint<Req, null>
@@ -27,39 +29,57 @@ export function defineInvokeEvent<Req, Res>() {
   }
 }
 
-type InvokeEvent<Req, Res> = ReturnType<typeof defineInvokeEvent<Req, Res>>
+export type InvokeEvent<Req, Res> = ReturnType<typeof defineInvokeEvent<Req, Res>>
 
-export function createContext() {
+interface CreateContextProps {
+  adapter?: Adapter
+
+  // hooks?: {
+  //   onReceive?: (event: SymbolEvent<any, any>) => void
+  // }
+}
+
+export function createContext(props: CreateContextProps = {}) {
   const listeners = new Map<SymbolEvent<any, any>, Set<(params: any) => any>>()
   const onceListeners = new Map<SymbolEvent<any, any>, Set<(params: any) => any>>()
+
+  function emit<Req, Res>(event: SymbolEvent<Req, Res>, params: Req) {
+    for (const listener of listeners.get(event) || []) {
+      listener(params)
+    }
+
+    for (const onceListener of onceListeners.get(event) || []) {
+      onceListener(params)
+      onceListeners.get(event)?.delete(onceListener)
+    }
+  }
+
+  const hooks = props.adapter?.(emit).hooks
 
   return {
     // listeners,
     // onceListeners,
 
-    emit<Req, Res>(event: SymbolEvent<Req, Res>, params: Req | Res) {
-      for (const listener of listeners.get(event) || []) {
-        listener(params)
-      }
-
-      for (const onceListener of onceListeners.get(event) || []) {
-        onceListener(params)
-        onceListeners.get(event)?.delete(onceListener)
-      }
-    },
+    emit,
 
     on<Req, Res>(event: SymbolEvent<Req, Res>, handler: (params: Req) => void) {
       if (!listeners.has(event)) {
         listeners.set(event, new Set())
       }
-      listeners.get(event)?.add(handler)
+      listeners.get(event)?.add((params: Req) => {
+        handler(params)
+        hooks?.onReceive?.(event)
+      })
     },
 
     once<Req, Res>(event: SymbolEvent<Req, Res>, handler: (params: Req) => void) {
       if (!onceListeners.has(event)) {
         onceListeners.set(event, new Set())
       }
-      onceListeners.get(event)?.add(handler)
+      onceListeners.get(event)?.add((params: Req) => {
+        handler(params)
+        hooks?.onReceive?.(event)
+      })
     },
 
     off<Req, Res>(event: SymbolEvent<Req, Res>) {
@@ -86,7 +106,8 @@ export function createContext() {
   }
 }
 
-type EventContext = ReturnType<typeof createContext>
+export type EventContext = ReturnType<typeof createContext>
+export type EventContextEmitFn = EventContext['emit']
 
 export function defineInvoke<Req, Res>(clientCtx: EventContext, event: InvokeEvent<Req, Res>) {
   return (req: Req) => new Promise<Res>((resolve) => {

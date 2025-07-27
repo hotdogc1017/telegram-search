@@ -509,6 +509,9 @@ importers:
 
   packages/event-core:
     dependencies:
+      h3:
+        specifier: ^1.15.3
+        version: 1.15.3
       nanoid:
         specifier: ^5.1.5
         version: 5.1.5

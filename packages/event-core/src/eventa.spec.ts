@@ -92,14 +92,6 @@ describe('eventSystem', () => {
 
       const result = await invoke({ name: 'alice', age: 25 })
 
-      // setTimeout(() => {
-      //   serverCtx.emit(events.serverEvent, { name: 'alice', age: 25 })
-      // }, 0)
-
-      // setTimeout(() => {
-      //   clientCtx.emit(events.clientEvent, { id: 'alice-25' })
-      // }, 0)
-
       expect(result).toEqual({ id: 'alice-25' })
     })
 
