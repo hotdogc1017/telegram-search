@@ -10,7 +10,7 @@ export function nanoid() {
   return customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 16)()
 }
 
-function generateEventPayload<T>(data: T): EventPayload<T> {
+export function generateEventPayload<T>(data: T): EventPayload<T> {
   return {
     id: nanoid(),
     data,
@@ -35,7 +35,7 @@ type InboundEvent<Req, Res> = EventTag<Req, Res> & { type: EventType.InboundEven
 type OutboundEvent<Req, Res> = EventTag<Req, Res> & { type: EventType.OutboundEvent }
 type OutboundEventStreamEnd<Req, Res> = EventTag<Req, Res> & { type: EventType.OutboundEventStreamEnd }
 
-export function defineInvokeEvent<Req, Res>(tag?: string) {
+export function defineEventa<Req, Res>(tag?: string) {
   if (!tag) {
     tag = nanoid()
   }
@@ -51,4 +51,4 @@ export function defineInvokeEvent<Req, Res>(tag?: string) {
   }
 }
 
-export type InvokeEvent<Req, Res> = ReturnType<typeof defineInvokeEvent<Req, Res>>
+export type InvokeEvent<Req, Res> = ReturnType<typeof defineEventa<Req, Res>>

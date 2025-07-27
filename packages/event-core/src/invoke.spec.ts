@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
 import { createContext } from './context'
-import { defineInvokeEvent } from './eventa'
+import { defineEventa } from './eventa'
 import { defineInvoke, defineInvokeHandler } from './invoke'
 
 describe('invoke', () => {
   it('should handle request-response pattern', async () => {
     const ctx = createContext()
-    const events = defineInvokeEvent<{ name: string, age: number }, { id: string }>()
+    const events = defineEventa<{ name: string, age: number }, { id: string }>()
 
     defineInvokeHandler(ctx, events, ({ name, age }) => ({
       id: `${name}-${age}`,
@@ -23,7 +23,7 @@ describe('invoke', () => {
   // it.skip('should handle multiple concurrent invokes', async () => {
   //   const serverCtx = createContext()
   //   const clientCtx = createContext()
-  //   const events = defineInvokeEvent<{ value: number }, { result: number }>()
+  //   const events = defineEventa<{ value: number }, { result: number }>()
 
   //   defineInvokeHandler(serverCtx, events, ({ value }) => ({
   //     result: value * 2,
@@ -57,7 +57,7 @@ describe('invoke-type-safety', () => {
       created: boolean
     }
 
-    const events = defineInvokeEvent<UserRequest, UserResponse>()
+    const events = defineEventa<UserRequest, UserResponse>()
     const serverCtx = createContext()
     const clientCtx = createContext()
 

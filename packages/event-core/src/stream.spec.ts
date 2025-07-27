@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { createContext } from './context'
-import { defineInvokeEvent } from './eventa'
+import { defineEventa } from './eventa'
 import { defineStreamInvoke, defineStreamInvokeHandler, toStreamHandler } from './stream'
 
 describe('stream', () => {
@@ -12,7 +12,7 @@ describe('stream', () => {
     interface Progress { type: 'progress', progress: number }
     interface Result { type: 'result', result: boolean }
 
-    const events = defineInvokeEvent<{ name: string, age: number }, Parameter | Progress | Result>()
+    const events = defineEventa<{ name: string, age: number }, Parameter | Progress | Result>()
 
     defineStreamInvokeHandler(ctx, events, ({ name, age }) => {
       return (async function* () {
@@ -61,7 +61,7 @@ describe('stream', () => {
     interface Progress { type: 'progress', progress: number }
     interface Result { type: 'result', result: boolean }
 
-    const events = defineInvokeEvent<{ name: string, age: number }, Parameter | Progress | Result>()
+    const events = defineEventa<{ name: string, age: number }, Parameter | Progress | Result>()
 
     defineStreamInvokeHandler(ctx, events, toStreamHandler(async ({ payload, emit }) => {
       emit({ type: 'parameters', name: payload.name, age: payload.age })

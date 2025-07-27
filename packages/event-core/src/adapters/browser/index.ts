@@ -1,11 +1,11 @@
 import type { EventContextEmitFn } from '../../context'
 import type { EventTag } from '../../eventa'
 
-import { defineInvokeEvent, nanoid } from '../../eventa'
+import { defineEventa, nanoid } from '../../eventa'
 
-const wsConnectedEvent = defineInvokeEvent<{ url: string }, object>()
-const wsDisconnectedEvent = defineInvokeEvent<{ url: string }, object>()
-const wsErrorEvent = defineInvokeEvent<{ error: unknown }, object>()
+const wsConnectedEvent = defineEventa<{ url: string }, object>()
+const wsDisconnectedEvent = defineEventa<{ url: string }, object>()
+const wsErrorEvent = defineEventa<{ error: unknown }, object>()
 
 interface WebsocketPayload<T> {
   id: string
