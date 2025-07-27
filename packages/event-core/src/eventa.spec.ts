@@ -6,8 +6,8 @@ describe('eventSystem', () => {
   describe('defineInvokeEvent', () => {
     it('should create server and client events', () => {
       const events = defineInvokeEvent<{ name: string }, { id: string }>()
-      expect(events.inboundEvent).toBeTypeOf('symbol')
-      expect(events.outboundEvent).toBeTypeOf('symbol')
+      expect(typeof events.inboundEvent).toBe('string') 
+      expect(typeof events.outboundEvent).toBe('string')
       expect(events.inboundEvent).not.toBe(events.outboundEvent)
     })
   })
@@ -15,7 +15,7 @@ describe('eventSystem', () => {
   describe('eventContext', () => {
     it('should register and emit events', () => {
       const ctx = createContext()
-      const testEvent = Symbol('test')
+      const testEvent = 'test-event'
       const handler = vi.fn()
 
       ctx.on(testEvent, handler)
@@ -26,7 +26,7 @@ describe('eventSystem', () => {
 
     it('should handle once listeners', () => {
       const ctx = createContext()
-      const testEvent = Symbol('test')
+      const testEvent = 'test-event'
       const handler = vi.fn()
 
       ctx.once(testEvent, handler)
@@ -39,7 +39,7 @@ describe('eventSystem', () => {
 
     it('should resolve until promise', async () => {
       const ctx = createContext()
-      const testEvent = Symbol('test')
+      const testEvent = 'test-event'
 
       const promise = ctx.until(testEvent, (data: { value: number }) => data.value * 2)
 
@@ -53,7 +53,7 @@ describe('eventSystem', () => {
 
     it('should reject until promise on error', async () => {
       const ctx = createContext()
-      const testEvent = Symbol('test')
+      const testEvent = 'test-event'
 
       const promise = ctx.until(testEvent, () => {
         throw new Error('Test error')
@@ -68,7 +68,7 @@ describe('eventSystem', () => {
 
     it('should remove listeners with off', () => {
       const ctx = createContext()
-      const testEvent = Symbol('test')
+      const testEvent = 'test-event'
       const handler = vi.fn()
 
       ctx.on(testEvent, handler)
@@ -153,8 +153,8 @@ describe('eventSystem', () => {
 
       const events = defineInvokeEvent<{ name: string, age: number }, Parameter | Progress | Result>()
 
-      defineStreamInvokeHandler(ctx, events, toStreamHandler(async ({ params, emit }) => {
-        emit({ type: 'parameters', name: params.name, age: params.age })
+      defineStreamInvokeHandler(ctx, events, toStreamHandler(async ({ payload, emit }) => {
+        emit({ type: 'parameters', name: payload.name, age: payload.age })
 
         for (let i = 0; i < 5; i++) {
           emit({ type: 'progress', progress: (i + 1) * 20 } as Progress)
@@ -206,8 +206,8 @@ describe('eventSystem', () => {
       const promise2 = invoke({ value: 20 })
 
       setTimeout(() => {
-        clientCtx.emit(events.outboundEvent, { result: 20 })
-        clientCtx.emit(events.outboundEvent, { result: 40 })
+        serverCtx.emit(events.outboundEvent, { result: 20 })
+        serverCtx.emit(events.outboundEvent, { result: 40 })
       }, 0.1)
 
       const [result1, result2] = await Promise.all([promise1, promise2])

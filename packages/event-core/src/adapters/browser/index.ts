@@ -1,4 +1,4 @@
-import type { EventContextEmitFn, SymbolEvent } from '../../eventa'
+import type { EventContextEmitFn, EventTag } from '../../eventa'
 
 import { defineInvokeEvent } from '../../eventa'
 
@@ -12,7 +12,7 @@ export function createWsAdapter(url: string) {
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data)
-      emit(data.type, data.data)
+      emit(data.type, data.payload)
     }
 
     ws.onopen = () => {
@@ -31,9 +31,9 @@ export function createWsAdapter(url: string) {
       cleanup: () => ws.close(),
 
       hooks: {
-        onReceive: <Req, Res>(event: SymbolEvent<Req, Res>, params: Req) => {
+        onReceive: <Req, Res>(tag: EventTag<Req, Res>, params: Req) => {
           ws.send(JSON.stringify({
-            type: event,
+            type: tag,
             data: params,
           }))
         },
