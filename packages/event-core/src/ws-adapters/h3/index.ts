@@ -7,7 +7,7 @@ import type { EventTag } from '../../eventa'
 import { defineWebSocketHandler } from 'h3'
 
 import { generateWebsocketPayload, parseWebsocketPayload } from '..'
-import { defineInvokeEventa } from '../../eventa'
+import { defineInvokeEventa } from '../../invoke-shared'
 
 export const wsConnectedEvent = defineInvokeEventa<{ id: string }, object>()
 export const wsDisconnectedEvent = defineInvokeEventa<{ id: string }, object>()

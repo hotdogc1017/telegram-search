@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createWsAdapter, wsConnectedEvent, wsDisconnectedEvent, wsErrorEvent } from '.'
 import { createContext } from '../../context'
-import { defineInvokeEventa } from '../../eventa'
+import { defineInvokeEventa } from '../../invoke-shared'
 
 describe('ws-adapter', () => {
   let ws: WebSocket

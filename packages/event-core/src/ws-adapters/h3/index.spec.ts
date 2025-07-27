@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createH3WsAdapter, wsConnectedEvent, wsDisconnectedEvent, wsErrorEvent } from '.'
 import { createContext } from '../../context'
-import { defineInvokeEventa } from '../../eventa'
+import { defineInvokeEventa } from '../../invoke-shared'
 
 describe('h3-ws-adapter', () => {
   let peer: {

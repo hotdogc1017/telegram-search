@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { defineInvokeEventa } from './eventa'
+import { defineInvokeEventa } from './invoke-shared'
 
 describe('eventa', () => {
   it('should create server and client events', () => {

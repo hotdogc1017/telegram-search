@@ -3,7 +3,7 @@ import type { EventContextEmitFn } from '../../context'
 import type { EventTag } from '../../eventa'
 
 import { generateWebsocketPayload, parseWebsocketPayload } from '..'
-import { defineInvokeEventa } from '../../eventa'
+import { defineInvokeEventa } from '../../invoke-shared'
 
 export const wsConnectedEvent = defineInvokeEventa<{ url: string }, object>()
 export const wsDisconnectedEvent = defineInvokeEventa<{ url: string }, object>()
