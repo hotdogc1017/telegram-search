@@ -3,9 +3,9 @@ import type { EventTag } from '../../eventa'
 
 import { defineEventa, nanoid } from '../../eventa'
 
-const wsConnectedEvent = defineEventa<{ url: string }, object>()
-const wsDisconnectedEvent = defineEventa<{ url: string }, object>()
-const wsErrorEvent = defineEventa<{ error: unknown }, object>()
+export const wsConnectedEvent = defineEventa<{ url: string }, object>()
+export const wsDisconnectedEvent = defineEventa<{ url: string }, object>()
+export const wsErrorEvent = defineEventa<{ error: unknown }, object>()
 
 interface WebsocketPayload<T> {
   id: string
@@ -52,7 +52,11 @@ export function createWsAdapter(url: string) {
       cleanup: () => ws.close(),
 
       hooks: {
-        onReceive: <Req, Res>(tag: EventTag<Req, Res>, payload: Req) => {
+        onReceived: <Req, Res>(tag: EventTag<Req, Res>, payload: Req) => {
+          ws.send(JSON.stringify(generateWebsocketPayload(tag, payload)))
+        },
+
+        onSent: <Req, Res>(tag: EventTag<Req, Res>, payload: Req) => {
           ws.send(JSON.stringify(generateWebsocketPayload(tag, payload)))
         },
       },

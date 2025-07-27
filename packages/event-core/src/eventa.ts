@@ -18,14 +18,14 @@ export function generateEventPayload<T>(data: T): EventPayload<T> {
   }
 }
 
-interface InvokeEventConstraint<_Req, _Res> {}
+export interface InvokeEventConstraint<_Req, _Res> {}
 
 export type EventTag<Req, Res> = string & InvokeEventConstraint<Req, Res>
 
 // type ServerInvokeHandlerEvent<Req, Res> = symbol & InvokeEventConstraint<Req, Res>
 // type ClientInvoke<Req> = symbol & InvokeEventConstraint<Req, null>
 
-enum EventType {
+export enum EventType {
   InboundEvent,
   OutboundEvent,
   OutboundEventStreamEnd,

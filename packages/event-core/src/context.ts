@@ -5,13 +5,15 @@ interface CreateContextProps {
   adapter?: Adapter
 
   // hooks?: {
-  //   onReceive?: (event: Event<any, any>) => void
+  //   onReceived?: (event: Event<any, any>) => void
   // }
 }
 
 export function createContext(props: CreateContextProps = {}) {
   const listeners = new Map<EventTag<any, any>, Set<(params: any) => any>>()
   const onceListeners = new Map<EventTag<any, any>, Set<(params: any) => any>>()
+
+  const hooks = props.adapter?.(emit).hooks
 
   function emit<Req, Res>(event: EventTag<Req, Res>, payload: Req) {
     for (const listener of listeners.get(event) || []) {
@@ -22,13 +24,18 @@ export function createContext(props: CreateContextProps = {}) {
       onceListener(payload)
       onceListeners.get(event)?.delete(onceListener)
     }
+
+    hooks?.onSent(event, payload)
   }
 
-  const hooks = props.adapter?.(emit).hooks
-
   return {
-    // listeners,
-    // onceListeners,
+    get listeners() {
+      return listeners
+    },
+
+    get onceListeners() {
+      return onceListeners
+    },
 
     emit,
 
@@ -38,7 +45,7 @@ export function createContext(props: CreateContextProps = {}) {
       }
       listeners.get(event)?.add((payload: Req) => {
         handler(payload)
-        hooks?.onReceive?.(event, payload)
+        hooks?.onReceived?.(event, payload)
       })
     },
 
@@ -48,7 +55,7 @@ export function createContext(props: CreateContextProps = {}) {
       }
       onceListeners.get(event)?.add((payload: Req) => {
         handler(payload)
-        hooks?.onReceive?.(event, payload)
+        hooks?.onReceived?.(event, payload)
       })
     },
 
