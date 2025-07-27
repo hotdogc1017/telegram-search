@@ -15,7 +15,7 @@ export function createContext(props: CreateContextProps = {}) {
 
   const hooks = props.adapter?.(emit).hooks
 
-  function emit<Req, Res = undefined>(event: EventTag<Res, Req>, payload: Req) {
+  function emit<T>(event: EventTag<undefined, T>, payload: T) {
     for (const listener of listeners.get(event) || []) {
       listener(payload)
     }
@@ -39,28 +39,28 @@ export function createContext(props: CreateContextProps = {}) {
 
     emit,
 
-    on<Req, Res = undefined>(event: EventTag<Res, Req>, handler: (payload: Req) => void) {
+    on<T>(event: EventTag<undefined, T>, handler: (payload: T) => void) {
       if (!listeners.has(event)) {
         listeners.set(event, new Set())
       }
-      listeners.get(event)?.add((payload: Req) => {
+      listeners.get(event)?.add((payload: T) => {
         handler(payload)
         hooks?.onReceived?.(event, payload)
       })
     },
 
-    once<Req, Res = undefined>(event: EventTag<Res, Req>, handler: (payload: Req) => void) {
+    once<T>(event: EventTag<undefined, T>, handler: (payload: T) => void) {
       if (!onceListeners.has(event)) {
         onceListeners.set(event, new Set())
       }
 
-      onceListeners.get(event)?.add((payload: Req) => {
+      onceListeners.get(event)?.add((payload: T) => {
         handler(payload)
         hooks?.onReceived?.(event, payload)
       })
     },
 
-    off<Req, Res>(event: EventTag<Res, Req>) {
+    off<T>(event: EventTag<undefined, T>) {
       listeners.delete(event)
       onceListeners.delete(event)
     },
