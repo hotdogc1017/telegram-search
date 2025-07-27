@@ -1,13 +1,13 @@
-import { describe, expect, it, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { createContext } from './context'
-import { defineEventa } from './eventa'
 import { defineInvoke, defineInvokeHandler } from './invoke'
+import { defineInvokeEventa } from './invoke-shared'
 
 describe('invoke', () => {
   it('should handle request-response pattern', async () => {
     const ctx = createContext()
-    const events = defineEventa<{ id: string }, { name: string, age: number }>()
+    const events = defineInvokeEventa<{ id: string }, { name: string, age: number }>()
 
     defineInvokeHandler(ctx, events, ({ name, age }) => ({
       id: `${name}-${age}`,
@@ -21,7 +21,7 @@ describe('invoke', () => {
 
   it('should handle request-response pattern with error', async () => {
     const ctx = createContext()
-    const events = defineEventa<{ id: string }, { name: string, age: number }>()
+    const events = defineInvokeEventa<{ id: string }, { name: string, age: number }>()
 
     defineInvokeHandler(ctx, events, ({ name, age }) => {
       throw new Error(`Error processing request for ${name} aged ${age}`)
@@ -71,7 +71,7 @@ describe('invoke-type-safety', () => {
       created: boolean
     }
 
-    const events = defineEventa<UserResponse, UserRequest>()
+    const events = defineInvokeEventa<UserResponse, UserRequest>()
     const serverCtx = createContext()
     const clientCtx = createContext()
 

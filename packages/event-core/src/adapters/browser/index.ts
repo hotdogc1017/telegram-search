@@ -1,9 +1,9 @@
-import type { EventaAdapter } from '..'
 import type { EventContextEmitFn } from '../../context'
 import type { EventTag } from '../../eventa'
+import type { EventaAdapter } from '../websocket'
 
-import { generateWebsocketPayload, parseWebsocketPayload } from '..'
 import { defineInvokeEventa } from '../../eventa'
+import { generateWebsocketPayload, parseWebsocketPayload } from '../websocket'
 
 export const wsConnectedEvent = defineInvokeEventa<{ url: string }, object>()
 export const wsDisconnectedEvent = defineInvokeEventa<{ url: string }, object>()
@@ -19,15 +19,15 @@ export function createWsAdapter(url: string): EventaAdapter {
     }
 
     ws.onopen = () => {
-      emit(wsConnectedEvent.sendEvent, { url })
+      emit(wsConnectedEvent.inboundEvent, { url })
     }
 
     ws.onerror = (error) => {
-      emit(wsErrorEvent.sendEvent, { error })
+      emit(wsErrorEvent.inboundEvent, { error })
     }
 
     ws.onclose = () => {
-      emit(wsDisconnectedEvent.sendEvent, { url })
+      emit(wsDisconnectedEvent.inboundEvent, { url })
     }
 
     return {

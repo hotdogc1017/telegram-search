@@ -1,9 +1,9 @@
 import type { EventContext } from './context'
-import type { Eventa, ReceiveEvent, ReceiveEventError, SendEvent } from './eventa'
+import type { InvokeEventa, ReceiveEvent, ReceiveEventError, SendEvent } from './invoke-shared'
 
 import { nanoid } from './eventa'
 
-export function defineInvoke<Res, Req = undefined, ResErr = Error, ReqErr = Error>(clientCtx: EventContext, event: Eventa<Res, Req, ResErr, ReqErr>) {
+export function defineInvoke<Res, Req = undefined, ResErr = Error, ReqErr = Error>(clientCtx: EventContext, event: InvokeEventa<Res, Req, ResErr, ReqErr>) {
   const mInvokeIdPromiseResolvers = new Map<string, (value: Res | PromiseLike<Res>) => void>()
   const mInvokeIdPromiseRejectors = new Map<string, (err?: any) => void>()
 
@@ -45,7 +45,7 @@ export function defineInvoke<Res, Req = undefined, ResErr = Error, ReqErr = Erro
   })
 }
 
-export function defineInvokeHandler<Res, Req = undefined, ResErr = Error, ReqErr = Error>(serverCtx: EventContext, event: Eventa<Res, Req, ResErr, ReqErr>, fn: (payload: Req) => Res) {
+export function defineInvokeHandler<Res, Req = undefined, ResErr = Error, ReqErr = Error>(serverCtx: EventContext, event: InvokeEventa<Res, Req, ResErr, ReqErr>, fn: (payload: Req) => Res) {
   serverCtx.on<SendEvent<Res, Req, ResErr, ReqErr>>(event.sendEvent.id, (payload) => { // on: event_trigger
     if (!payload.body) {
       return

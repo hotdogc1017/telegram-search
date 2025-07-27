@@ -1,13 +1,13 @@
 import type { App, EventHandler } from 'h3'
 
-import type { EventaAdapter } from '..'
 import type { EventContextEmitFn } from '../../context'
 import type { EventTag } from '../../eventa'
+import type { EventaAdapter } from '../websocket'
 
 import { defineWebSocketHandler } from 'h3'
 
-import { generateWebsocketPayload, parseWebsocketPayload } from '..'
 import { defineInvokeEventa } from '../../eventa'
+import { generateWebsocketPayload, parseWebsocketPayload } from '../websocket'
 
 export const wsConnectedEvent = defineInvokeEventa<{ id: string }, object>()
 export const wsDisconnectedEvent = defineInvokeEventa<{ id: string }, object>()
@@ -22,16 +22,16 @@ export function createH3WsAdapter(app: App, peers: Set<Peer> = new Set<Peer>()):
     app.use('/ws', defineWebSocketHandler({
       open(peer) {
         peers.add(peer)
-        emit(wsConnectedEvent.sendEvent, { id: peer.id })
+        emit(wsConnectedEvent.inboundEvent, { id: peer.id })
       },
 
       close(peer) {
         peers.delete(peer)
-        emit(wsDisconnectedEvent.sendEvent, { id: peer.id })
+        emit(wsDisconnectedEvent.inboundEvent, { id: peer.id })
       },
 
       error(peer, error) {
-        emit(wsErrorEvent.sendEvent, { error })
+        emit(wsErrorEvent.inboundEvent, { error })
       },
 
       async message(peer, message) {
@@ -40,7 +40,7 @@ export function createH3WsAdapter(app: App, peers: Set<Peer> = new Set<Peer>()):
           emit(type, payload)
         }
         catch (error) {
-          emit(wsErrorEvent.sendEvent, { error })
+          emit(wsErrorEvent.inboundEvent, { error })
         }
       },
     }))

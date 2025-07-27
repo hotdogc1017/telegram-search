@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { defineEventa } from './eventa'
+import { defineInvokeEventa } from './eventa'
 
 describe('eventa', () => {
   it('should create server and client events', () => {
-    const events = defineEventa<{ name: string }, { id: string }>()
+    const events = defineInvokeEventa<{ name: string }, { id: string }>()
     expect(typeof events.sendEvent).toBe('object')
     expect(typeof events.sendEvent.id).toBe('string')
     expect(typeof events.receiveEvent).toBe('object')

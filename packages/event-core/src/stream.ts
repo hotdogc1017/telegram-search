@@ -1,14 +1,15 @@
 import type { EventContext } from './context'
-import { nanoid } from './eventa'
 import type {
-  Eventa,
+  InvokeEventa,
   ReceiveEvent,
   ReceiveEventError,
+  ReceiveEventStreamEnd,
   SendEvent,
-  ReceiveEventStreamEnd
-} from './eventa'
+} from './invoke-shared'
 
-export function defineStreamInvoke<Res, Req = undefined, ResErr = Error, ReqErr = Error>(clientCtx: EventContext, event: Eventa<Res, Req, ResErr, ReqErr>) {
+import { nanoid } from './eventa'
+
+export function defineStreamInvoke<Res, Req = undefined, ResErr = Error, ReqErr = Error>(clientCtx: EventContext, event: InvokeEventa<Res, Req, ResErr, ReqErr>) {
   return (req: Req) => {
     const invokeId = nanoid()
 
@@ -35,7 +36,7 @@ export function defineStreamInvoke<Res, Req = undefined, ResErr = Error, ReqErr 
           controller.error(payload.body.content as ResErr)
         })
         clientCtx.on<ReceiveEventStreamEnd<Res, Req, ResErr, ReqErr>>(event.receiveEventStreamEnd.id, (payload) => {
-           if (!payload.body) {
+          if (!payload.body) {
             return
           }
           if (payload.body.invokeId !== invokeId) {
@@ -55,7 +56,7 @@ export function defineStreamInvoke<Res, Req = undefined, ResErr = Error, ReqErr 
   }
 }
 
-export function defineStreamInvokeHandler<Res, Req = undefined, ResErr = Error, ReqErr = Error>(serverCtx: EventContext, event: Eventa<Res, Req, ResErr, ReqErr>, fn: (payload: Req) => AsyncGenerator<Res, void, unknown>) {
+export function defineStreamInvokeHandler<Res, Req = undefined, ResErr = Error, ReqErr = Error>(serverCtx: EventContext, event: InvokeEventa<Res, Req, ResErr, ReqErr>, fn: (payload: Req) => AsyncGenerator<Res, void, unknown>) {
   serverCtx.on<SendEvent<Res, Req, ResErr, ReqErr>>(event.sendEvent.id, async (payload) => { // on: event_trigger
     if (!payload.body) {
       return

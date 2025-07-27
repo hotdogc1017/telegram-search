@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createWsAdapter, wsConnectedEvent, wsDisconnectedEvent, wsErrorEvent } from '.'
 import { createContext } from '../../context'
-import { defineEventa } from '../../eventa'
+import { defineInvokeEventa } from '../../eventa'
 
 describe('ws-adapter', () => {
   let ws: WebSocket
@@ -29,7 +29,7 @@ describe('ws-adapter', () => {
     expect(globalThis.WebSocket).toHaveBeenCalledWith('ws://localhost:3000')
 
     // Test sending message
-    const testEvent = defineEventa<string, string>('test')
+    const testEvent = defineInvokeEventa<string, string>('test')
     ctx.emit(testEvent.sendEvent, 'hello')
 
     expect(ws.send).toHaveBeenCalledWith(expect.stringContaining('"payload":"hello"'))

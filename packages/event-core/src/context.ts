@@ -1,5 +1,5 @@
-import type { EventaAdapter } from './ws-adapters'
 import type { EventTag } from './eventa'
+import type { EventaAdapter } from './ws-adapters'
 
 interface CreateContextProps {
   adapter?: EventaAdapter

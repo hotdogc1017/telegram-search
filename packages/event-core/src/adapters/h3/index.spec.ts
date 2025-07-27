@@ -51,9 +51,9 @@ describe('h3-ws-adapter', () => {
     const onError = vi.fn()
     const onDisconnect = vi.fn()
 
-    ctx.on(wsConnectedEvent.sendEvent, onConnect)
-    ctx.on(wsErrorEvent.sendEvent, onError)
-    ctx.on(wsDisconnectedEvent.sendEvent, onDisconnect)
+    ctx.on(wsConnectedEvent.inboundEvent, onConnect)
+    ctx.on(wsErrorEvent.inboundEvent, onError)
+    ctx.on(wsDisconnectedEvent.inboundEvent, onDisconnect)
 
     // Simulate connection events
     ctx.emit(wsConnectedEvent.inboundEvent, { id: peer.id })
