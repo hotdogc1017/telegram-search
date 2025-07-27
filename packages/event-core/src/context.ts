@@ -1,4 +1,4 @@
-import type { EventaAdapter } from './adapters/websocket'
+import type { EventaAdapter } from './ws-adapters'
 import type { EventTag } from './eventa'
 
 interface CreateContextProps {
