@@ -175,7 +175,7 @@ describe('ws-adapters-index', () => {
       const parsed = parseWebsocketPayload<typeof complexPayload>(jsonString)
 
       expect(parsed.payload).toEqual(complexPayload)
-      expect(parsed.payload.nested.array[2].deep).toBe('value')
+      expect(parsed.payload.nested.array[2]).toEqual({ deep: 'value' })
       expect(parsed.payload.specialChars).toBe('unicode: 你好 emoji: 🚀')
     })
   })
