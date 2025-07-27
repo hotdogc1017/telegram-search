@@ -43,13 +43,13 @@ export function createContext(props: CreateContextProps = {}) {
   const listeners = new Map<SymbolEvent<any, any>, Set<(params: any) => any>>()
   const onceListeners = new Map<SymbolEvent<any, any>, Set<(params: any) => any>>()
 
-  function emit<Req, Res>(event: SymbolEvent<Req, Res>, params: Req) {
+  function emit<Req, Res>(event: SymbolEvent<Req, Res>, payload: Req) {
     for (const listener of listeners.get(event) || []) {
-      listener(params)
+      listener(payload)
     }
 
     for (const onceListener of onceListeners.get(event) || []) {
-      onceListener(params)
+      onceListener(payload)
       onceListeners.get(event)?.delete(onceListener)
     }
   }
@@ -62,23 +62,23 @@ export function createContext(props: CreateContextProps = {}) {
 
     emit,
 
-    on<Req, Res>(event: SymbolEvent<Req, Res>, handler: (params: Req) => void) {
+    on<Req, Res>(event: SymbolEvent<Req, Res>, handler: (payload: Req) => void) {
       if (!listeners.has(event)) {
         listeners.set(event, new Set())
       }
-      listeners.get(event)?.add((params: Req) => {
-        handler(params)
-        hooks?.onReceive?.(event)
+      listeners.get(event)?.add((payload: Req) => {
+        handler(payload)
+        hooks?.onReceive?.(event, payload)
       })
     },
 
-    once<Req, Res>(event: SymbolEvent<Req, Res>, handler: (params: Req) => void) {
+    once<Req, Res>(event: SymbolEvent<Req, Res>, handler: (payload: Req) => void) {
       if (!onceListeners.has(event)) {
         onceListeners.set(event, new Set())
       }
-      onceListeners.get(event)?.add((params: Req) => {
-        handler(params)
-        hooks?.onReceive?.(event)
+      onceListeners.get(event)?.add((payload: Req) => {
+        handler(payload)
+        hooks?.onReceive?.(event, payload)
       })
     },
 
@@ -86,7 +86,7 @@ export function createContext(props: CreateContextProps = {}) {
       listeners.delete(event)
     },
 
-    until<Req, Res>(event: SymbolEvent<Req, Res>, listener: (params: Req) => any): Promise<Res> {
+    until<Req, Res>(event: SymbolEvent<Req, Res>, listener: (payload: Req) => any): Promise<Res> {
       return new Promise((resolve, reject) => {
         if (!onceListeners.has(event)) {
           onceListeners.set(event, new Set())
@@ -137,15 +137,15 @@ export function defineStreamInvoke<Req, Res>(clientCtx: EventContext, event: Inv
   }
 }
 
-export function defineInvokeHandler<Req, Res>(serverCtx: EventContext, event: InvokeEvent<Req, Res>, fn: (params: Req) => Res) {
-  serverCtx.on(event.inboundEvent, (params) => { // on: event_trigger
-    serverCtx.emit(event.outboundEvent, fn(params)) // emit: event_response
+export function defineInvokeHandler<Req, Res>(serverCtx: EventContext, event: InvokeEvent<Req, Res>, fn: (payload: Req) => Res) {
+  serverCtx.on(event.inboundEvent, (payload) => { // on: event_trigger
+    serverCtx.emit(event.outboundEvent, fn(payload)) // emit: event_response
   })
 }
 
-export function defineStreamInvokeHandler<Req, Res>(serverCtx: EventContext, event: InvokeEvent<Req, Res>, fn: (params: Req) => AsyncGenerator<Res, void, unknown>) {
-  serverCtx.on(event.inboundEvent, async (params) => { // on: event_trigger
-    const generator = fn(params)
+export function defineStreamInvokeHandler<Req, Res>(serverCtx: EventContext, event: InvokeEvent<Req, Res>, fn: (payload: Req) => AsyncGenerator<Res, void, unknown>) {
+  serverCtx.on(event.inboundEvent, async (payload) => { // on: event_trigger
+    const generator = fn(payload)
     for await (const res of generator) {
       serverCtx.emit(event.outboundEvent, res) // emit: event_response
     }
@@ -154,8 +154,8 @@ export function defineStreamInvokeHandler<Req, Res>(serverCtx: EventContext, eve
   })
 }
 
-export function toStreamHandler<Req, Res>(handler: (context: { params: Req, emit: (data: Res) => void }) => Promise<void>): (params: Req) => AsyncGenerator<Res, void, unknown> {
-  return (params) => {
+export function toStreamHandler<Req, Res>(handler: (context: { payload: Req, emit: (data: Res) => void }) => Promise<void>): (payload: Req) => AsyncGenerator<Res, void, unknown> {
+  return (payload) => {
     const values: Promise<[Res, boolean]>[] = []
     let resolve: (x: [Res, boolean]) => void
     let handlerError: Error | null = null
@@ -172,7 +172,7 @@ export function toStreamHandler<Req, Res>(handler: (context: { params: Req, emit
     }
 
     // Start the handler and mark completion when done
-    handler({ params, emit })
+    handler({ payload, emit })
       .then(() => {
         resolve([undefined as any, true])
       })
