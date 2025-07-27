@@ -12,7 +12,7 @@ describe('stream', () => {
     interface Progress { type: 'progress', progress: number }
     interface Result { type: 'result', result: boolean }
 
-    const events = defineEventa<{ name: string, age: number }, Parameter | Progress | Result>()
+    const events = defineEventa<Parameter | Progress | Result, { name: string, age: number }>()
 
     defineStreamInvokeHandler(ctx, events, ({ name, age }) => {
       return (async function* () {
@@ -61,7 +61,7 @@ describe('stream', () => {
     interface Progress { type: 'progress', progress: number }
     interface Result { type: 'result', result: boolean }
 
-    const events = defineEventa<{ name: string, age: number }, Parameter | Progress | Result>()
+    const events = defineEventa<Parameter | Progress | Result, { name: string, age: number }>()
 
     defineStreamInvokeHandler(ctx, events, toStreamHandler(async ({ payload, emit }) => {
       emit({ type: 'parameters', name: payload.name, age: payload.age })

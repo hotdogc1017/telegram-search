@@ -15,7 +15,7 @@ export function createContext(props: CreateContextProps = {}) {
 
   const hooks = props.adapter?.(emit).hooks
 
-  function emit<Req, Res>(event: EventTag<Req, Res>, payload: Req) {
+  function emit<Req, Res = undefined>(event: EventTag<Res, Req>, payload: Req) {
     for (const listener of listeners.get(event) || []) {
       listener(payload)
     }
@@ -39,7 +39,7 @@ export function createContext(props: CreateContextProps = {}) {
 
     emit,
 
-    on<Req, Res>(event: EventTag<Req, Res>, handler: (payload: Req) => void) {
+    on<Req, Res = undefined>(event: EventTag<Res, Req>, handler: (payload: Req) => void) {
       if (!listeners.has(event)) {
         listeners.set(event, new Set())
       }
@@ -49,37 +49,20 @@ export function createContext(props: CreateContextProps = {}) {
       })
     },
 
-    once<Req, Res>(event: EventTag<Req, Res>, handler: (payload: Req) => void) {
+    once<Req, Res = undefined>(event: EventTag<Res, Req>, handler: (payload: Req) => void) {
       if (!onceListeners.has(event)) {
         onceListeners.set(event, new Set())
       }
+
       onceListeners.get(event)?.add((payload: Req) => {
         handler(payload)
         hooks?.onReceived?.(event, payload)
       })
     },
 
-    off<Req, Res>(event: EventTag<Req, Res>) {
+    off<Req, Res>(event: EventTag<Res, Req>) {
       listeners.delete(event)
       onceListeners.delete(event)
-    },
-
-    until<Req, Res>(event: EventTag<Req, Res>, listener: (payload: Req) => any): Promise<Res> {
-      return new Promise((resolve, reject) => {
-        if (!onceListeners.has(event)) {
-          onceListeners.set(event, new Set())
-        }
-
-        onceListeners.get(event)?.add((data) => {
-          try {
-            const result = listener(data)
-            resolve(result)
-          }
-          catch (error) {
-            reject(error)
-          }
-        })
-      })
     },
   }
 }

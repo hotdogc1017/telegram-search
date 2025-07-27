@@ -22,16 +22,16 @@ export function createH3WsAdapter(app: App, peers: Set<Peer> = new Set<Peer>()):
     app.use('/ws', defineWebSocketHandler({
       open(peer) {
         peers.add(peer)
-        emit(wsConnectedEvent.inboundEvent, { id: peer.id })
+        emit(wsConnectedEvent.sendEvent, { id: peer.id })
       },
 
       close(peer) {
         peers.delete(peer)
-        emit(wsDisconnectedEvent.inboundEvent, { id: peer.id })
+        emit(wsDisconnectedEvent.sendEvent, { id: peer.id })
       },
 
       error(peer, error) {
-        emit(wsErrorEvent.inboundEvent, { error })
+        emit(wsErrorEvent.sendEvent, { error })
       },
 
       async message(peer, message) {
@@ -40,7 +40,7 @@ export function createH3WsAdapter(app: App, peers: Set<Peer> = new Set<Peer>()):
           emit(type, payload)
         }
         catch (error) {
-          emit(wsErrorEvent.inboundEvent, { error })
+          emit(wsErrorEvent.sendEvent, { error })
         }
       },
     }))

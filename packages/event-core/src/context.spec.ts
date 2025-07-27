@@ -27,35 +27,6 @@ describe('eventContext', () => {
     expect(handler).toHaveBeenCalledWith({ data: 'test1' })
   })
 
-  it('should resolve until promise', async () => {
-    const ctx = createContext()
-    const testEvent = 'test-event'
-
-    const promise = ctx.until(testEvent, (data: { value: number }) => data.value * 2)
-
-    setTimeout(() => {
-      ctx.emit(testEvent, { value: 5 })
-    }, 0)
-
-    const result = await promise
-    expect(result).toBe(10)
-  })
-
-  it('should reject until promise on error', async () => {
-    const ctx = createContext()
-    const testEvent = 'test-event'
-
-    const promise = ctx.until(testEvent, () => {
-      throw new Error('Test error')
-    })
-
-    setTimeout(() => {
-      ctx.emit(testEvent, {})
-    }, 0)
-
-    await expect(promise).rejects.toThrow('Test error')
-  })
-
   it('should remove listeners with off', () => {
     const ctx = createContext()
     const testEvent = 'test-event'

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 
 import { createContext } from './context'
 import { defineEventa } from './eventa'
@@ -7,7 +7,7 @@ import { defineInvoke, defineInvokeHandler } from './invoke'
 describe('invoke', () => {
   it('should handle request-response pattern', async () => {
     const ctx = createContext()
-    const events = defineEventa<{ name: string, age: number }, { id: string }>()
+    const events = defineEventa<{ id: string }, { name: string, age: number }>()
 
     defineInvokeHandler(ctx, events, ({ name, age }) => ({
       id: `${name}-${age}`,
@@ -16,8 +16,22 @@ describe('invoke', () => {
     const invoke = defineInvoke(ctx, events)
 
     const result = await invoke({ name: 'alice', age: 25 })
-
     expect(result).toEqual({ id: 'alice-25' })
+  })
+
+  it('should handle request-response pattern with error', async () => {
+    const ctx = createContext()
+    const events = defineEventa<{ id: string }, { name: string, age: number }>()
+
+    defineInvokeHandler(ctx, events, ({ name, age }) => {
+      throw new Error(`Error processing request for ${name} aged ${age}`)
+    })
+
+    const invoke = defineInvoke(ctx, events)
+
+    await expect(() => invoke({ name: 'alice', age: 25 }))
+      .rejects
+      .toThrowError('Error processing request for alice aged 25')
   })
 
   // it.skip('should handle multiple concurrent invokes', async () => {
@@ -57,7 +71,7 @@ describe('invoke-type-safety', () => {
       created: boolean
     }
 
-    const events = defineEventa<UserRequest, UserResponse>()
+    const events = defineEventa<UserResponse, UserRequest>()
     const serverCtx = createContext()
     const clientCtx = createContext()
 

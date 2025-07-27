@@ -20,35 +20,68 @@ export function generateEventPayload<T>(data: T): EventPayload<T> {
 
 export interface InvokeEventConstraint<_Req, _Res> {}
 
-export type EventTag<Req, Res> = string & InvokeEventConstraint<Req, Res>
+export type EventTag<Res, Req> = string & InvokeEventConstraint<Req, Res>
 
 // type ServerInvokeHandlerEvent<Req, Res> = symbol & InvokeEventConstraint<Req, Res>
 // type ClientInvoke<Req> = symbol & InvokeEventConstraint<Req, null>
 
 export enum EventType {
-  InboundEvent,
-  OutboundEvent,
-  OutboundEventStreamEnd,
+  SendEvent,
+  SendEventError,
+  ReceiveEvent,
+  ReceiveEventError,
+  ReceiveEventStreamEnd,
 }
 
-type InboundEvent<Req, Res> = EventTag<Req, Res> & { type: EventType.InboundEvent }
-type OutboundEvent<Req, Res> = EventTag<Req, Res> & { type: EventType.OutboundEvent }
-type OutboundEventStreamEnd<Req, Res> = EventTag<Req, Res> & { type: EventType.OutboundEventStreamEnd }
+export interface SendEvent<Res, Req = undefined, _ = undefined, __ = undefined> { id: EventTag<Res, Req>, type: EventType.SendEvent, body?: { invokeId: string, content: Req } }
+export interface SendEventError<Res, Req = undefined, _ = undefined, ReqErr = Error> { id: EventTag<Res, Req>, type: EventType.SendEventError, body?: { invokeId: string, content: ReqErr } }
+export interface ReceiveEvent<Res, Req = undefined, _ = undefined, __ = undefined> { id: EventTag<Res, Req>, type: EventType.ReceiveEvent, body?: { invokeId: string, content: Res } }
+export interface ReceiveEventError<Res, Req = undefined, ResErr = undefined, _ = undefined> { id: EventTag<Res, Req>, type: EventType.ReceiveEventError, body?: { invokeId: string, content: { error: ResErr } } }
+export interface ReceiveEventStreamEnd<Res, Req = undefined, _ = undefined, __ = undefined> { id: EventTag<Res, Req>, type: EventType.ReceiveEventStreamEnd, body?: { invokeId: string, content: undefined } }
 
-export function defineEventa<Req, Res>(tag?: string) {
+export interface Eventa<Res, Req = undefined, ResErr = Error, ReqErr = Error> {
+  sendEvent: SendEvent<Res, Req, ResErr, ReqErr>
+  sendEventError: SendEventError<Res, Req, ResErr, ReqErr>
+  receiveEvent: ReceiveEvent<Res, Req, ResErr, ReqErr>
+  receiveEventError: ReceiveEventError<Res, Req, ResErr, ReqErr>
+  receiveEventStreamEnd: ReceiveEventStreamEnd<Res, Req, ResErr, ReqErr>
+}
+
+export function defineEventa<Res, Req = undefined, ResErr = Error, ReqErr = Error>(tag?: string) {
   if (!tag) {
     tag = nanoid()
   }
 
-  const inboundEvent = `${tag}-inbound` as InboundEvent<Req, Res>
-  const outboundEvent = `${tag}-outbound` as OutboundEvent<Req, Res>
-  const outboundEventStreamEnd = `${tag}-outbound-stream-end` as OutboundEventStreamEnd<Req, Res>
+  const sendEvent = {
+    id: `${tag}-send`,
+    type: EventType.SendEvent,
+  } as SendEvent<Res, Req, ResErr, ReqErr>
+
+  const sendEventError = {
+    id: `${tag}-send-error`,
+    type: EventType.SendEventError,
+  } as SendEventError<Res, Req, ResErr, ReqErr>
+
+  const receiveEvent = {
+    id: `${tag}-receive`,
+    type: EventType.ReceiveEvent,
+  } as ReceiveEvent<Res, Req, ResErr, ReqErr>
+
+  const receiveEventError = {
+    id: `${tag}-receive-error`,
+    type: EventType.ReceiveEventError,
+  } as ReceiveEventError<Res, Req, ResErr, ReqErr>
+
+  const receiveEventStreamEnd = {
+    id: `${tag}-receive-stream-end`,
+    type: EventType.ReceiveEventStreamEnd,
+  } as ReceiveEventStreamEnd<Res, Req, ResErr, ReqErr>
 
   return {
-    inboundEvent,
-    outboundEvent,
-    outboundEventStreamEnd,
-  }
+    sendEvent,
+    sendEventError,
+    receiveEvent,
+    receiveEventError,
+    receiveEventStreamEnd,
+  } satisfies Eventa<Res, Req, ResErr, ReqErr>
 }
-
-export type InvokeEvent<Req, Res> = ReturnType<typeof defineEventa<Req, Res>>

@@ -30,18 +30,18 @@ describe('ws-adapter', () => {
 
     // Test sending message
     const testEvent = defineEventa<string, string>('test')
-    ctx.emit(testEvent.inboundEvent, 'hello')
+    ctx.emit(testEvent.sendEvent, 'hello')
 
     expect(ws.send).toHaveBeenCalledWith(expect.stringContaining('"payload":"hello"'))
 
     // Test receiving message
     const onMessage = vi.fn()
-    ctx.on(testEvent.outboundEvent, onMessage)
+    ctx.on(testEvent.receiveEvent, onMessage)
 
     ws.onmessage?.({
       data: JSON.stringify({
         id: '123',
-        type: testEvent.outboundEvent,
+        type: testEvent.receiveEvent,
         payload: 'world',
         timestamp: Date.now(),
       }),
@@ -58,9 +58,9 @@ describe('ws-adapter', () => {
     const onError = vi.fn()
     const onDisconnect = vi.fn()
 
-    ctx.on(wsConnectedEvent.inboundEvent, onConnect)
-    ctx.on(wsErrorEvent.inboundEvent, onError)
-    ctx.on(wsDisconnectedEvent.inboundEvent, onDisconnect)
+    ctx.on(wsConnectedEvent.sendEvent, onConnect)
+    ctx.on(wsErrorEvent.sendEvent, onError)
+    ctx.on(wsDisconnectedEvent.sendEvent, onDisconnect)
 
     ws.onopen?.({} as Event)
     expect(onConnect).toHaveBeenCalledWith({ url: 'ws://localhost:3000' })
