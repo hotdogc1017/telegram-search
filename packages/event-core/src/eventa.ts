@@ -108,6 +108,7 @@ export function createContext(props: CreateContextProps = {}) {
 
     off<Req, Res>(event: EventTag<Req, Res>) {
       listeners.delete(event)
+      onceListeners.delete(event)
     },
 
     until<Req, Res>(event: EventTag<Req, Res>, listener: (payload: Req) => any): Promise<Res> {
@@ -163,7 +164,7 @@ export function defineStreamInvoke<Req, Res>(clientCtx: EventContext, event: Inv
 
 export function defineInvokeHandler<Req, Res>(serverCtx: EventContext, event: InvokeEvent<Req, Res>, fn: (payload: Req) => Res) {
   serverCtx.on(event.inboundEvent, (payload) => { // on: event_trigger
-    serverCtx.emit(event.outboundEvent, fn(payload)) // emit: event_response
+    serverCtx.emit(event.outboundEvent, fn(payload) as unknown as Req) // emit: event_response
   })
 }
 
@@ -171,10 +172,10 @@ export function defineStreamInvokeHandler<Req, Res>(serverCtx: EventContext, eve
   serverCtx.on(event.inboundEvent, async (payload) => { // on: event_trigger
     const generator = fn(payload)
     for await (const res of generator) {
-      serverCtx.emit(event.outboundEvent, res) // emit: event_response
+      serverCtx.emit(event.outboundEvent, res as unknown as Req) // emit: event_response
     }
 
-    serverCtx.emit(event.outboundEventStreamEnd, undefined as any) // emit: event_stream_end
+    serverCtx.emit(event.outboundEventStreamEnd, undefined) // emit: event_stream_end
   })
 }
 
