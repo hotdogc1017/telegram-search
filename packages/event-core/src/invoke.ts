@@ -1,6 +1,5 @@
-import type { EventContext, InvokeEvent } from './eventa'
-
-
+import type { EventContext } from './context'
+import type { InvokeEvent } from './eventa'
 
 export function defineInvoke<Req, Res>(clientCtx: EventContext, event: InvokeEvent<Req, Res>) {
   return (req: Req) => new Promise<Res>((resolve) => {

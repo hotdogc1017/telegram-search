@@ -1,4 +1,5 @@
-import type { EventContextEmitFn, EventTag } from '../../eventa'
+import type { EventContextEmitFn } from '../../context'
+import type { EventTag } from '../../eventa'
 
 import { defineInvokeEvent, nanoid } from '../../eventa'
 

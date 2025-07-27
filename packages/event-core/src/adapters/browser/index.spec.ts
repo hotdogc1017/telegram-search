@@ -1,7 +1,7 @@
 import { describe, it } from 'vitest'
 
 import { createWsAdapter } from '.'
-import { createContext } from '../../eventa'
+import { createContext } from '../../context'
 
 describe('wsAdapter', () => {
   it('should create a ws adapter', () => {
