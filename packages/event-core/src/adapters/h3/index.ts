@@ -1,10 +1,10 @@
-import type { EventHandler } from 'h3'
+import type { App, EventHandler } from 'h3'
 
 import type { EventContextEmitFn } from '../../context'
 import type { EventTag } from '../../eventa'
 import type { EventaAdapter } from '../websocket'
 
-import { createApp, defineWebSocketHandler } from 'h3'
+import { defineWebSocketHandler } from 'h3'
 
 import { defineEventa } from '../../eventa'
 import { generateWebsocketPayload, parseWebsocketPayload } from '../websocket'
@@ -17,11 +17,8 @@ export const wsErrorEvent = defineEventa<{ error: unknown }, object>()
 type Hooks = NonNullable<EventHandler['__websocket__']>
 export type Peer = Parameters<NonNullable<Hooks['message']>>[0]
 
-export function createH3WsAdapter(): EventaAdapter {
+export function createH3WsAdapter(app: App, peers: Set<Peer> = new Set<Peer>()): EventaAdapter {
   return (emit: EventContextEmitFn) => {
-    const app = createApp()
-    const peers = new Set<Peer>()
-
     app.use('/ws', defineWebSocketHandler({
       open(peer) {
         peers.add(peer)
@@ -57,6 +54,7 @@ export function createH3WsAdapter(): EventaAdapter {
       },
 
       hooks: {
+        // when ctx.on called, call onReceived
         onReceived: <Req, Res>(tag: EventTag<Req, Res>, payload: Req) => {
           const data = JSON.stringify(generateWebsocketPayload(tag, payload))
           for (const peer of peers) {

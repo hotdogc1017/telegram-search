@@ -3,8 +3,6 @@ import type { EventTag } from '../eventa'
 
 import { nanoid } from 'nanoid'
 
-import { defineEventa } from '../eventa'
-
 export interface WebsocketPayload<T> {
   id: string
   type: EventTag<any, any>
@@ -29,7 +27,14 @@ interface EventaAdapterProps {
   cleanup: () => void
 
   hooks: {
+    /**
+     * When `ctx.on`, `ctx.once` called, call `onReceived`
+     */
     onReceived: <Req, Res>(tag: EventTag<Req, Res>, payload: Req) => void
+
+    /**
+     * When `ctx.emit` called, call `onSent`
+     */
     onSent: <Req, Res>(tag: EventTag<Req, Res>, payload: Req) => void
   }
 }
