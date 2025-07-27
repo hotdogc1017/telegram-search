@@ -1,10 +1,6 @@
 import type { EventContext } from './context'
 import type {
   InvokeEventa,
-  ReceiveEvent,
-  ReceiveEventError,
-  ReceiveEventStreamEnd,
-  SendEvent,
 } from './invoke-shared'
 
 import { nanoid } from './eventa'
@@ -15,7 +11,7 @@ export function defineStreamInvoke<Res, Req = undefined, ResErr = Error, ReqErr 
 
     const stream = new ReadableStream<Res>({
       start(controller) {
-        clientCtx.on<ReceiveEvent<Res, Req, ResErr, ReqErr>>(event.receiveEvent.id, (payload) => {
+        clientCtx.on(event.receiveEvent, (payload) => {
           if (!payload.body) {
             return
           }
@@ -25,7 +21,7 @@ export function defineStreamInvoke<Res, Req = undefined, ResErr = Error, ReqErr 
 
           controller.enqueue(payload.body.content as Res)
         })
-        clientCtx.on<ReceiveEventError<Res, Req, ResErr, ReqErr>>(event.receiveEventError.id, (payload) => {
+        clientCtx.on(event.receiveEventError, (payload) => {
           if (!payload.body) {
             return
           }
@@ -35,7 +31,7 @@ export function defineStreamInvoke<Res, Req = undefined, ResErr = Error, ReqErr 
 
           controller.error(payload.body.content as ResErr)
         })
-        clientCtx.on<ReceiveEventStreamEnd<Res, Req, ResErr, ReqErr>>(event.receiveEventStreamEnd.id, (payload) => {
+        clientCtx.on(event.receiveEventStreamEnd, (payload) => {
           if (!payload.body) {
             return
           }
@@ -47,17 +43,17 @@ export function defineStreamInvoke<Res, Req = undefined, ResErr = Error, ReqErr 
         })
       },
       cancel() {
-        clientCtx.off(event.receiveEvent.id)
+        clientCtx.off(event.receiveEvent)
       },
     })
 
-    clientCtx.emit<SendEvent<Res, Req, ResErr, ReqErr>>(event.sendEvent.id, { ...event.sendEvent, body: { invokeId, content: req } }) // emit: event_trigger
+    clientCtx.emit(event.sendEvent, { invokeId, content: req }) // emit: event_trigger
     return stream
   }
 }
 
 export function defineStreamInvokeHandler<Res, Req = undefined, ResErr = Error, ReqErr = Error>(serverCtx: EventContext, event: InvokeEventa<Res, Req, ResErr, ReqErr>, fn: (payload: Req) => AsyncGenerator<Res, void, unknown>) {
-  serverCtx.on<SendEvent<Res, Req, ResErr, ReqErr>>(event.sendEvent.id, async (payload) => { // on: event_trigger
+  serverCtx.on(event.sendEvent, async (payload) => { // on: event_trigger
     if (!payload.body) {
       return
     }
@@ -67,10 +63,10 @@ export function defineStreamInvokeHandler<Res, Req = undefined, ResErr = Error, 
 
     const generator = fn(payload.body.content as Req) // Call the handler function with the request payload
     for await (const res of generator) {
-      serverCtx.emit<ReceiveEvent<Res, Req, ResErr, ReqErr>>(event.receiveEvent.id, { ...event.receiveEvent, body: { ...payload.body, content: res } }) // emit: event_response
+      serverCtx.emit(event.receiveEvent, { ...payload.body, content: res }) // emit: event_response
     }
 
-    serverCtx.emit<ReceiveEventStreamEnd<Res, Req, ResErr, ReqErr>>(event.receiveEventStreamEnd.id, { ...event.receiveEventStreamEnd, body: { ...payload.body, content: undefined } }) // emit: event_stream_end
+    serverCtx.emit(event.receiveEventStreamEnd, { ...payload.body, content: undefined }) // emit: event_stream_end
   })
 }
 

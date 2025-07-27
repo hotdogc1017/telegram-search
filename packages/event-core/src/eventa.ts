@@ -11,12 +11,13 @@ export type EventTag<Res, Req> = string & InvokeEventConstraint<Req, Res>
 // type ServerInvokeHandlerEvent<Req, Res> = symbol & InvokeEventConstraint<Req, Res>
 // type ClientInvoke<Req> = symbol & InvokeEventConstraint<Req, null>
 
-export interface Eventa<T> {
+export interface Eventa<T, P = undefined> {
   id: string
-  type?: T
+  type?: T,
+  body?: P
 }
 
-export function defineEventa<T>(tag?: string, type?: T) {
+export function defineEventa<T, P = undefined>(tag?: string, type?: T) {
   if (!tag) {
     tag = nanoid()
   }
@@ -24,5 +25,5 @@ export function defineEventa<T>(tag?: string, type?: T) {
   return {
     id: tag,
     type,
-  } satisfies Eventa<T>
+  } satisfies Eventa<T, P>
 }

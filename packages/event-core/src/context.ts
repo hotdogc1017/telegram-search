@@ -1,4 +1,4 @@
-import type { EventTag } from './eventa'
+import type { Eventa, EventTag } from './eventa'
 import type { EventaAdapter } from './ws-adapters'
 
 interface CreateContextProps {
@@ -15,17 +15,17 @@ export function createContext(props: CreateContextProps = {}) {
 
   const hooks = props.adapter?.(emit).hooks
 
-  function emit<T>(event: EventTag<undefined, T>, payload: T) {
-    for (const listener of listeners.get(event) || []) {
-      listener(payload)
+  function emit<T, P>(event: Eventa<T, P>, payload: P) {
+    for (const listener of listeners.get(event.id) || []) {
+      listener({ ...event, body: payload })
     }
 
-    for (const onceListener of onceListeners.get(event) || []) {
-      onceListener(payload)
-      onceListeners.get(event)?.delete(onceListener)
+    for (const onceListener of onceListeners.get(event.id) || []) {
+      onceListener({ ...event, body: payload })
+      onceListeners.get(event.id)?.delete(onceListener)
     }
 
-    hooks?.onSent(event, payload)
+    hooks?.onSent(event.id, { ...event, body: payload })
   }
 
   return {
@@ -39,30 +39,30 @@ export function createContext(props: CreateContextProps = {}) {
 
     emit,
 
-    on<T>(event: EventTag<undefined, T>, handler: (payload: T) => void) {
-      if (!listeners.has(event)) {
-        listeners.set(event, new Set())
+    on<T, P>(event: Eventa<T, P>, handler: (payload: Eventa<T, P>) => void) {
+      if (!listeners.has(event.id)) {
+        listeners.set(event.id, new Set())
       }
-      listeners.get(event)?.add((payload: T) => {
+      listeners.get(event.id)?.add((payload: Eventa<T, P>) => {
         handler(payload)
-        hooks?.onReceived?.(event, payload)
+        hooks?.onReceived?.(event.id, payload)
       })
     },
 
-    once<T>(event: EventTag<undefined, T>, handler: (payload: T) => void) {
-      if (!onceListeners.has(event)) {
-        onceListeners.set(event, new Set())
+    once<T, P>(event: Eventa<T, P>, handler: (payload: Eventa<T, P>) => void) {
+      if (!onceListeners.has(event.id)) {
+        onceListeners.set(event.id, new Set())
       }
 
-      onceListeners.get(event)?.add((payload: T) => {
+      onceListeners.get(event.id)?.add((payload: Eventa<T, P>) => {
         handler(payload)
-        hooks?.onReceived?.(event, payload)
+        hooks?.onReceived?.(event.id, payload)
       })
     },
 
-    off<T>(event: EventTag<undefined, T>) {
-      listeners.delete(event)
-      onceListeners.delete(event)
+    off<T, P>(event: Eventa<T, P>) {
+      listeners.delete(event.id)
+      onceListeners.delete(event.id)
     },
   }
 }
