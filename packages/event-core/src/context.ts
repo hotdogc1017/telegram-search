@@ -1,8 +1,8 @@
-import type { Adapter } from './adapters/browser'
+import type { EventaAdapter } from './adapters/websocket'
 import type { EventTag } from './eventa'
 
 interface CreateContextProps {
-  adapter?: Adapter
+  adapter?: EventaAdapter
 
   // hooks?: {
   //   onReceived?: (event: Event<any, any>) => void
