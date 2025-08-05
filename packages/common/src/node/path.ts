@@ -3,11 +3,19 @@ import type { Config } from '../browser'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 
 import { useLogger } from '@unbird/logg'
-import { dirname, join, resolve } from 'pathe'
+import { dirname, resolve } from 'pathe'
 
 import { DatabaseType, generateDefaultConfig } from '../browser'
 
 const logger = useLogger()
+
+export function getRootPath(): string {
+  return resolve('../../')
+}
+
+export function getDataPath(): string {
+  return resolve('../../', './data')
+}
 
 export function getDatabaseFilePath(config: Config): string {
   const { database } = config
@@ -21,11 +29,11 @@ export function getDatabaseFilePath(config: Config): string {
       return ''
   }
 
-  return join('./data', `db${extension}`)
+  return resolve(getDataPath(), `db${extension}`)
 }
 
 export async function useConfigPath(): Promise<string> {
-  const configPath = resolve('../../', './config', 'config.yaml')
+  const configPath = resolve(getRootPath(), './config', 'config.yaml')
 
   logger.withFields({ configPath }).log('Config path')
 
@@ -38,7 +46,7 @@ export async function useConfigPath(): Promise<string> {
 }
 
 export function getSessionPath(): string {
-  const sessionPath = join('../../', './data', 'sessions')
+  const sessionPath = resolve(getDataPath(), 'sessions')
   if (!existsSync(sessionPath)) {
     mkdirSync(sessionPath, { recursive: true })
   }
