@@ -1,3 +1,4 @@
+import type { Config } from '@tg-search/common'
 import type { Logger } from '@unbird/logg'
 import type { PgliteDatabase } from 'drizzle-orm/pglite'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
@@ -7,7 +8,7 @@ import { vector } from '@electric-sql/pglite/vector'
 import { migrate as migratePg } from '@proj-airi/drizzle-orm-browser-migrator/pg'
 import { migrate as migratePGlite } from '@proj-airi/drizzle-orm-browser-migrator/pglite'
 import { DatabaseType, flags } from '@tg-search/common'
-import { getDatabaseDSN, getDatabaseFilePath, useConfig } from '@tg-search/common/node'
+import { getDatabaseDSN, getDatabaseFilePath } from '@tg-search/common/node'
 import { Err, Ok } from '@unbird/result'
 import { sql } from 'drizzle-orm'
 import { drizzle as drizzlePGlite } from 'drizzle-orm/pglite'
@@ -44,11 +45,10 @@ async function applyMigrations(logger: Logger, db: CoreDB, dbType: DatabaseType)
   }
 }
 
-export async function initDrizzle(logger: Logger) {
+export async function initDrizzle(logger: Logger, config: Config) {
   logger.log('Initializing database...')
 
   // Get configuration
-  const config = useConfig()
   const dbType = config.database.type || DatabaseType.POSTGRES
 
   logger.log(`Using database type: ${dbType}`)

@@ -25,7 +25,7 @@ export function getDatabaseFilePath(config: Config): string {
 }
 
 export async function useConfigPath(): Promise<string> {
-  const configPath = resolve('./config', 'config.yaml')
+  const configPath = resolve('../../', './config', 'config.yaml')
 
   logger.withFields({ configPath }).log('Config path')
 
@@ -38,7 +38,7 @@ export async function useConfigPath(): Promise<string> {
 }
 
 export function getSessionPath(): string {
-  const sessionPath = join('./data', 'sessions')
+  const sessionPath = join('../../', './data', 'sessions')
   if (!existsSync(sessionPath)) {
     mkdirSync(sessionPath, { recursive: true })
   }
@@ -47,4 +47,3 @@ export function getSessionPath(): string {
 
   return sessionPath
 }
-
