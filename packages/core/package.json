@@ -26,6 +26,7 @@
     "@tg-search/common": "workspace:*",
     "@unbird/logg": "catalog:",
     "@unbird/result": "catalog:",
+    "@vueuse/core": "^13.6.0",
     "@xsai-ext/providers-local": "catalog:",
     "@xsai/embed": "catalog:",
     "big-integer": "^1.6.52",

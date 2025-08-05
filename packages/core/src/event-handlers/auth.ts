@@ -3,7 +3,7 @@ import type { ConnectionService, SessionService } from '../services'
 
 import { useLogger } from '@unbird/logg'
 
-export function registerAuthEventHandlers(ctx: CoreContext) {
+export function registerBasicEventHandlers(ctx: CoreContext) {
   const { emitter } = ctx
   const logger = useLogger('core:auth:event')
 

@@ -5,7 +5,7 @@ import { toast } from 'vue-sonner'
 import { useAuthStore } from '../stores/useAuth'
 import { useWebsocketStore } from '../stores/useWebsocket'
 
-export function registerAuthEventHandlers(
+export function registerBasicEventHandlers(
   registerEventHandler: ClientRegisterEventHandler,
 ) {
   registerEventHandler('auth:code:needed', () => {

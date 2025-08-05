@@ -2,7 +2,7 @@ import type { CoreContext } from './context'
 
 import { useConfig } from '../../common/src/node'
 import { createCoreContext } from './context'
-import { afterConnectedEventHandler, authEventHandler, useEventHandler } from './event-handler'
+import { afterConnectedEventHandler, basicEventHandler, useEventHandler } from './event-handler'
 
 export interface ClientInstanceEventToCore {
   'core:cleanup': () => void
@@ -19,7 +19,7 @@ export function createCoreInstance(): CoreContext {
   const config = useConfig()
 
   const { register: registerEventHandler } = useEventHandler(ctx, config)
-  registerEventHandler(authEventHandler)
+  registerEventHandler(basicEventHandler)
   registerEventHandler(afterConnectedEventHandler)
 
   return ctx
