@@ -1,4 +1,6 @@
 import type { Logger } from '@unbird/logg'
+import type { PgliteDatabase } from 'drizzle-orm/pglite'
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 
 import { PGlite } from '@electric-sql/pglite'
 import { vector } from '@electric-sql/pglite/vector'
@@ -9,7 +11,7 @@ import { getDatabaseDSN, getDatabaseFilePath, useConfig } from '@tg-search/commo
 import { Err, Ok } from '@unbird/result'
 import { sql } from 'drizzle-orm'
 import { drizzle as drizzlePGlite } from 'drizzle-orm/pglite'
-import { drizzle } from 'drizzle-orm/postgres-js'
+import { drizzle as drizzlePg } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import migrations from 'virtual:drizzle-migrations.sql'
 
@@ -17,9 +19,9 @@ interface BaseDB {
   execute: (query: any) => Promise<any>
 }
 
-type PostgresDB = ReturnType<typeof drizzle> & BaseDB
-type PgliteDB = ReturnType<typeof drizzlePGlite> & BaseDB
-export type CoreDB = PostgresDB | PgliteDB
+type PostgresDB = PostgresJsDatabase<Record<string, unknown>>
+type PgliteDB = PgliteDatabase<Record<string, unknown>>
+export type CoreDB = (PostgresDB | PgliteDB) & BaseDB
 
 let dbInstance: CoreDB
 
@@ -27,12 +29,11 @@ async function applyMigrations(logger: Logger, db: CoreDB, dbType: DatabaseType)
   try {
     switch (dbType) {
       case DatabaseType.POSTGRES:
-        // @ts-expect-error - TODO: fix this
         await migratePg(db as PostgresDB, migrations)
         break
       case DatabaseType.PGLITE:
-        // @ts-expect-error - TODO: fix this
-        await migratePGlite(db as PgliteDB, migrations)
+        // TODO: fix type
+        await migratePGlite(db as any, migrations)
         break
     }
     logger.log('Database migrations applied successfully')
@@ -65,7 +66,7 @@ export async function initDrizzle(logger: Logger) {
         },
       })
 
-      dbInstance = drizzle(client, { logger: flags.isDatabaseDebugMode }) as CoreDB
+      dbInstance = drizzlePg(client, { logger: flags.isDatabaseDebugMode }) as CoreDB
       break
     }
 

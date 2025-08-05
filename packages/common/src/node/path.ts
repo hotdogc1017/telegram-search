@@ -24,16 +24,6 @@ export function getDatabaseFilePath(config: Config): string {
   return join('./data', `db${extension}`)
 }
 
-export function resolveStoragePath(path: string): string {
-  // For browser compatibility, just use relative paths
-  if (path.startsWith('~')) {
-    path = path.replace('~', './data')
-  }
-
-  const resolvedPath = resolve(path)
-  return resolvedPath
-}
-
 export async function useConfigPath(): Promise<string> {
   const configPath = resolve('./config', 'config.yaml')
 
@@ -47,24 +37,6 @@ export async function useConfigPath(): Promise<string> {
   return configPath
 }
 
-export async function getDrizzlePath(): Promise<string> {
-  const drizzlePath = resolve('./drizzle')
-  logger.withFields({ drizzlePath }).log('Drizzle migrations path')
-  return drizzlePath
-}
-
-export async function useAssetsPath(): Promise<string> {
-  const assetsPath = resolve('./assets')
-
-  logger.withFields({ assetsPath }).log('Assets path')
-
-  if (!existsSync(assetsPath)) {
-    mkdirSync(dirname(assetsPath), { recursive: true })
-  }
-
-  return assetsPath
-}
-
 export function getSessionPath(): string {
   const sessionPath = join('./data', 'sessions')
   if (!existsSync(sessionPath)) {
@@ -76,12 +48,3 @@ export function getSessionPath(): string {
   return sessionPath
 }
 
-export function getMediaPath(): string {
-  const mediaPath = join('./data', 'media')
-  if (!existsSync(mediaPath)) {
-    mkdirSync(mediaPath, { recursive: true })
-  }
-
-  logger.withFields({ mediaPath }).log('Media path')
-  return mediaPath
-}
