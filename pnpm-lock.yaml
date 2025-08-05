@@ -324,16 +324,9 @@ importers:
       listhen:
         specifier: ^1.9.0
         version: 1.9.0
-      vite-node:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@24.2.0)(jiti@2.5.1)(lightningcss@1.30.1)(tsx@4.20.3)(yaml@2.8.0)
       web-streams-polyfill:
         specifier: ^4.1.0
         version: 4.1.0
-    devDependencies:
-      '@proj-airi/unplugin-drizzle-orm-migrations':
-        specifier: link:../../../../proj-airi/drizzle-orm-browser/packages/unplugin-drizzle-orm-migrations
-        version: link:../../../../proj-airi/drizzle-orm-browser/packages/unplugin-drizzle-orm-migrations
 
   packages/client:
     dependencies:
