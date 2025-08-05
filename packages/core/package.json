@@ -4,20 +4,28 @@
   "version": "1.0.0-beta.22",
   "private": true,
   "exports": {
-    ".": "./src/index.ts",
-    "./types": "./src/types.ts"
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./types": {
+      "types": "./dist/types.d.mts",
+      "import": "./dist/types.mjs"
+    }
   },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build": "tsdown"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.3.6",
-    "@moeru/std": "0.1.0-beta.7",
     "@node-rs/jieba": "^2.0.1",
+    "@proj-airi/drizzle-orm-browser-migrator": "link:../../../../proj-airi/drizzle-orm-browser/packages/drizzle-orm-browser-migrator",
     "@tg-search/common": "workspace:*",
     "@unbird/logg": "catalog:",
     "@unbird/result": "catalog:",
-    "@xsai-ext/providers-cloud": "catalog:",
     "@xsai-ext/providers-local": "catalog:",
     "@xsai/embed": "catalog:",
     "big-integer": "^1.6.52",
@@ -25,14 +33,14 @@
     "drizzle-orm": "^0.44.4",
     "eventemitter3": "^5.0.1",
     "file-type": "^21.0.0",
-    "grammy": "^1.37.0",
     "pathe": "^2.0.3",
-    "pg": "^8.16.3",
     "postgres": "^3.4.7",
     "telegram": "^2.26.22",
     "valibot": "^1.1.0"
   },
   "devDependencies": {
-    "@types/pg": "^8.15.5"
+    "@proj-airi/unplugin-drizzle-orm-migrations": "link:../../../../proj-airi/drizzle-orm-browser/packages/unplugin-drizzle-orm-migrations",
+    "@types/pg": "^8.15.5",
+    "tsdown": "^0.13.2"
   }
 }

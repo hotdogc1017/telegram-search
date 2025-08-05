@@ -6,8 +6,8 @@
     "./types": "./src/types.ts"
   },
   "scripts": {
-    "serve": "tsx src/app.ts",
-    "dev": "tsx src/app.ts",
+    "serve": "vite-node src/app.ts",
+    "dev": "vite-node src/app.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -17,8 +17,10 @@
     "es-toolkit": "^1.39.8",
     "h3": "^1.15.4",
     "listhen": "^1.9.0",
-    "tsx": "^4.20.3",
     "vite-node": "^3.2.4",
     "web-streams-polyfill": "^4.1.0"
+  },
+  "devDependencies": {
+    "@proj-airi/unplugin-drizzle-orm-migrations": "link:../../../../proj-airi/drizzle-orm-browser/packages/unplugin-drizzle-orm-migrations"
   }
 }

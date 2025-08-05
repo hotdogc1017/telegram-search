@@ -1,40 +1,38 @@
 import type { Logger } from '@unbird/logg'
-import type { PgliteDatabase } from 'drizzle-orm/pglite'
-import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 
 import { PGlite } from '@electric-sql/pglite'
 import { vector } from '@electric-sql/pglite/vector'
+import { migrate as migratePg } from '@proj-airi/drizzle-orm-browser-migrator/pg'
+import { migrate as migratePGlite } from '@proj-airi/drizzle-orm-browser-migrator/pglite'
 import { DatabaseType, flags } from '@tg-search/common'
-import { getDatabaseDSN, getDatabaseFilePath, getDrizzlePath, useConfig } from '@tg-search/common/node'
+import { getDatabaseDSN, getDatabaseFilePath, useConfig } from '@tg-search/common/node'
 import { Err, Ok } from '@unbird/result'
 import { sql } from 'drizzle-orm'
 import { drizzle as drizzlePGlite } from 'drizzle-orm/pglite'
-import { migrate as migratePGlite } from 'drizzle-orm/pglite/migrator'
 import { drizzle } from 'drizzle-orm/postgres-js'
-import { migrate as migratePg } from 'drizzle-orm/postgres-js/migrator'
 import postgres from 'postgres'
+import migrations from 'virtual:drizzle-migrations.sql'
 
 interface BaseDB {
   execute: (query: any) => Promise<any>
 }
 
-export type CoreDB
-  = | (PostgresJsDatabase<Record<string, unknown>> & { $client: ReturnType<typeof postgres> } & BaseDB)
-    | (PgliteDatabase<Record<string, unknown>> & { $client: PGlite } & BaseDB)
+type PostgresDB = ReturnType<typeof drizzle> & BaseDB
+type PgliteDB = ReturnType<typeof drizzlePGlite> & BaseDB
+export type CoreDB = PostgresDB | PgliteDB
 
 let dbInstance: CoreDB
 
 async function applyMigrations(logger: Logger, db: CoreDB, dbType: DatabaseType) {
-  const migrationsFolder = await getDrizzlePath()
-  logger.log(`Running migrations from: ${migrationsFolder}`)
-
   try {
     switch (dbType) {
       case DatabaseType.POSTGRES:
-        await migratePg(db as PostgresJsDatabase<Record<string, unknown>>, { migrationsFolder })
+        // @ts-expect-error - TODO: fix this
+        await migratePg(db as PostgresDB, migrations)
         break
       case DatabaseType.PGLITE:
-        await migratePGlite(db as PgliteDatabase<Record<string, unknown>>, { migrationsFolder })
+        // @ts-expect-error - TODO: fix this
+        await migratePGlite(db as PgliteDB, migrations)
         break
     }
     logger.log('Database migrations applied successfully')
