@@ -22,7 +22,7 @@
   "dependencies": {
     "@electric-sql/pglite": "^0.3.6",
     "@node-rs/jieba": "^2.0.1",
-    "@proj-airi/drizzle-orm-browser-migrator": "link:../../../../proj-airi/drizzle-orm-browser/packages/drizzle-orm-browser-migrator",
+    "@proj-airi/drizzle-orm-browser-migrator": "^0.1.2",
     "@tg-search/common": "workspace:*",
     "@unbird/logg": "catalog:",
     "@unbird/result": "catalog:",
@@ -39,7 +39,7 @@
     "valibot": "^1.1.0"
   },
   "devDependencies": {
-    "@proj-airi/unplugin-drizzle-orm-migrations": "link:../../../../proj-airi/drizzle-orm-browser/packages/unplugin-drizzle-orm-migrations",
+    "@proj-airi/unplugin-drizzle-orm-migrations": "^0.1.2",
     "@types/pg": "^8.15.5",
     "tsdown": "^0.13.2"
   }
