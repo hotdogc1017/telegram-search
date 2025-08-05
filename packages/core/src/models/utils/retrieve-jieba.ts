@@ -12,7 +12,7 @@ import { chatMessagesTable } from '../../schemas/chat_messages'
 export async function retrieveJieba(chatId: string | undefined, content: string, pagination?: CorePagination): Promise<DBRetrievalMessages[]> {
   const logger = useLogger('models:retrieve-jieba')
 
-  const jieba = ensureJieba()
+  const jieba = await ensureJieba()
   const jiebaTokens = jieba?.cut(content) || []
   if (jiebaTokens.length === 0) {
     return []

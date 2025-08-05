@@ -44,12 +44,6 @@ export const databaseConfigSchema = object({
   url: optional(string()),
 })
 
-export const pathConfigSchema = object({
-  storage: optional(string(), '.cache'),
-  dict: optional(string(), ''),
-  assets: optional(string(), ''),
-})
-
 export const telegramConfigSchema = object({
   apiId: optional(string(), ''),
   apiHash: optional(string(), ''),
@@ -72,7 +66,6 @@ export const apiConfigSchema = object({
 
 export const configSchema = object({
   database: optional(databaseConfigSchema, {}),
-  path: optional(pathConfigSchema, {}),
   api: optional(apiConfigSchema, {}),
 })
 
