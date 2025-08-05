@@ -26,8 +26,8 @@
   "devDependencies": {
     "@proj-airi/unocss-preset-chromatic": "^1.0.0",
     "@types/node": "^24.2.0",
-    "@unbird/eslint-config": "catalog:",
-    "@unbird/logg": "catalog:",
+    "@unbird/eslint-config": "^1.0.1",
+    "@unbird/logg": "^1.1.0",
     "bumpp": "^10.2.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
