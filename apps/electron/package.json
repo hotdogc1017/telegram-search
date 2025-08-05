@@ -4,10 +4,9 @@
   "private": true,
   "main": "./out/main/index.js",
   "scripts": {
-    "start": "electron-vite preview",
-    "dev": "electron-vite dev",
-    "build": "electron-vite build",
-    "postinstall": "electron-builder install-app-deps"
+    "start": "electron-builder install-app-deps && electron-vite preview",
+    "dev": "electron-builder install-app-deps && electron-vite dev",
+    "build": "electron-builder install-app-deps && electron-vite build"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
