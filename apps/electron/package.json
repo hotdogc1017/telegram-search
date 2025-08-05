@@ -20,7 +20,7 @@
     "@tg-search/common": "workspace:*",
     "@tg-search/core": "workspace:*",
     "@tg-search/stage-ui": "workspace:*",
-    "@unbird/logg": "^1.1.0",
+    "@unbird/logg": "^1.1.2",
     "@vueuse/core": "^13.6.0",
     "defu": "^6.1.4",
     "electron-updater": "^6.6.2",

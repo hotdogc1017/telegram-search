@@ -27,7 +27,7 @@
     "@proj-airi/unocss-preset-chromatic": "^1.0.0",
     "@types/node": "^24.2.0",
     "@unbird/eslint-config": "^1.0.1",
-    "@unbird/logg": "^1.1.0",
+    "@unbird/logg": "^1.1.2",
     "bumpp": "^10.2.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
