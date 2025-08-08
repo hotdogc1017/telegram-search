@@ -6,15 +6,6 @@ settings:
 
 catalogs:
   default:
-    '@unbird/eslint-config':
-      specifier: ^1.0.1
-      version: 1.0.1
-    '@unbird/logg':
-      specifier: ^1.1.0
-      version: 1.1.0
-    '@unbird/result':
-      specifier: ^1.1.0
-      version: 1.1.0
     '@xsai-ext/providers-local':
       specifier: ^0.3.5
       version: 0.3.5
