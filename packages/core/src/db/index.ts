@@ -45,7 +45,7 @@ async function applyMigrations(logger: Logger, db: CoreDB, dbType: DatabaseType)
   }
 }
 
-export async function initDrizzle(logger: Logger, config: Config) {
+export async function initDrizzle(logger: Logger, config: Config, dbPath?: string) {
   logger.log('Initializing database...')
 
   // Get configuration
@@ -72,7 +72,7 @@ export async function initDrizzle(logger: Logger, config: Config) {
 
     case DatabaseType.PGLITE: {
       // Initialize PGlite database
-      const dbFilePath = getDatabaseFilePath(config)
+      const dbFilePath = dbPath || getDatabaseFilePath(config)
       logger.log(`Using PGlite database file: ${dbFilePath}`)
 
       try {

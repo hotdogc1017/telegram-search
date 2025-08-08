@@ -3,6 +3,7 @@ import type { App, EventHandler } from 'h3'
 
 import type { WsEventToClientData, WsMessageToServer } from './events'
 
+import { useConfig } from '@tg-search/common/node'
 import { createCoreInstance } from '@tg-search/core'
 import { useLogger } from '@unbird/logg'
 import { defineWebSocketHandler } from 'h3'
@@ -40,7 +41,7 @@ export function setupWsRoutes(app: App) {
     if (!clientStatesBySession.has(sessionId)) {
       logger.withFields({ sessionId }).log('Session created')
 
-      const ctx = createCoreInstance()
+      const ctx = createCoreInstance(useConfig())
       state = {
         ctx,
         isConnected: false,

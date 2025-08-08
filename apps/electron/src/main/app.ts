@@ -6,7 +6,7 @@ import type { WsEventToClientData, WsMessageToClient, WsMessageToServer } from '
 import process from 'node:process'
 
 import { parseEnvFlags } from '@tg-search/common'
-import { initConfig } from '@tg-search/common/node'
+import { initConfig, useConfig } from '@tg-search/common/node'
 import { createCoreInstance, initDrizzle } from '@tg-search/core'
 import { initLogger, useLogger } from '@unbird/logg'
 import { ipcMain } from 'electron/main'
@@ -57,7 +57,7 @@ export function setupElectronIpc(browserWindow: BrowserWindow) {
   const logger = useLogger('server:ws')
   const sessionId = 'electron' // pseudo session id
   const state: ClientState = {
-    ctx: createCoreInstance(),
+    ctx: createCoreInstance(useConfig()),
     isConnected: false,
   }
 

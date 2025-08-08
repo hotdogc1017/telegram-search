@@ -15,4 +15,7 @@ export default defineConfig({
       root: '../..'
     }),
   ],
+  external: [
+    '@node-rs/jieba'
+  ]
 })
