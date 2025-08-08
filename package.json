@@ -22,7 +22,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/db.ts migrate",
     "db:push": "tsx scripts/db.ts push",
-    "db:kit": "tsx scripts/db.ts"
+    "db:kit": "tsx scripts/db.ts",
+    "postinstall": "pnpm run packages:build"
   },
   "devDependencies": {
     "@proj-airi/unocss-preset-chromatic": "^1.0.0",
