@@ -17,10 +17,10 @@
     "es-toolkit": "^1.39.8",
     "h3": "^1.15.4",
     "listhen": "^1.9.0",
+    "vite-node": "^3.2.4",
     "web-streams-polyfill": "^4.1.0"
   },
   "devDependencies": {
-    "@proj-airi/unplugin-drizzle-orm-migrations": "^0.1.2",
-    "vite-node": "^3.2.4"
+    "@proj-airi/unplugin-drizzle-orm-migrations": "^0.1.2"
   }
 }
