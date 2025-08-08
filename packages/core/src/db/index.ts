@@ -1,5 +1,6 @@
 import type { Config } from '@tg-search/common'
 import type { Logger } from '@unbird/logg'
+import type { SQL } from 'drizzle-orm'
 
 import { PGlite } from '@electric-sql/pglite'
 import { vector } from '@electric-sql/pglite/vector'
@@ -8,7 +9,7 @@ import { migrate as migratePGlite } from '@proj-airi/drizzle-orm-browser-migrato
 import { DatabaseType, flags } from '@tg-search/common'
 import { getDatabaseDSN, getDatabaseFilePath } from '@tg-search/common/node'
 import { Err, Ok } from '@unbird/result'
-import { SQL, sql } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 import { drizzle as drizzlePGlite } from 'drizzle-orm/pglite'
 import { drizzle as drizzlePg } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
