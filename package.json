@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@proj-airi/unocss-preset-chromatic": "^1.0.0",
-    "@types/node": "^24.2.1",
+    "@types/node": "^24.3.0",
     "@unbird/eslint-config": "catalog:",
     "@unbird/logg": "catalog:",
     "bumpp": "^10.2.3",
@@ -41,7 +41,7 @@
     "unocss": "^66.4.2",
     "unocss-preset-animations": "^1.2.1",
     "unocss-preset-shadcn": "^0.5.0",
-    "unplugin-unused": "^0.5.1",
+    "unplugin-unused": "^0.5.2",
     "vite": "npm:rolldown-vite@latest",
     "vitest": "^3.2.4"
   }

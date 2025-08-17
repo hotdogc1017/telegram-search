@@ -14,11 +14,11 @@
     "@tg-search/common": "workspace:*",
     "@tg-search/core": "workspace:*",
     "@unbird/logg": "catalog:",
-    "es-toolkit": "^1.39.9",
+    "es-toolkit": "^1.39.10",
     "h3": "^1.15.4",
     "listhen": "^1.9.0",
     "vite-node": "^3.2.4",
-    "web-streams-polyfill": "^4.1.0"
+    "web-streams-polyfill": "^4.2.0"
   },
   "devDependencies": {
     "@proj-airi/unplugin-drizzle-orm-migrations": "^0.1.2"
