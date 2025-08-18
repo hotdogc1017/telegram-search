@@ -4,10 +4,9 @@
   "private": true,
   "main": "./out/main/index.js",
   "scripts": {
-    "start": "electron-vite preview",
-    "dev": "electron-vite dev",
-    "build": "electron-vite build",
-    "postinstall": "electron-builder install-app-deps"
+    "start": "electron-builder install-app-deps && electron-vite preview",
+    "dev": "electron-builder install-app-deps && electron-vite dev",
+    "build": "electron-builder install-app-deps && electron-vite build"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
@@ -21,7 +20,7 @@
     "@tg-search/common": "workspace:*",
     "@tg-search/core": "workspace:*",
     "@tg-search/stage-ui": "workspace:*",
-    "@unbird/logg": "catalog:",
+    "@unbird/logg": "^1.1.2",
     "@vueuse/core": "^13.6.0",
     "defu": "^6.1.4",
     "electron-updater": "^6.6.2",

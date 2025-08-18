@@ -1,23 +1,25 @@
+import type { Config } from '@tg-search/common'
 import type { Logger } from '@unbird/logg'
+import type { SQL } from 'drizzle-orm'
 
 import { PGlite } from '@electric-sql/pglite'
 import { vector } from '@electric-sql/pglite/vector'
 import { migrate as migratePg } from '@proj-airi/drizzle-orm-browser-migrator/pg'
 import { migrate as migratePGlite } from '@proj-airi/drizzle-orm-browser-migrator/pglite'
 import { DatabaseType, flags } from '@tg-search/common'
-import { getDatabaseDSN, getDatabaseFilePath, useConfig } from '@tg-search/common/node'
+import { getDatabaseDSN, getDatabaseFilePath } from '@tg-search/common/node'
 import { Err, Ok } from '@unbird/result'
 import { sql } from 'drizzle-orm'
 import { drizzle as drizzlePGlite } from 'drizzle-orm/pglite'
-import { drizzle } from 'drizzle-orm/postgres-js'
+import { drizzle as drizzlePg } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import migrations from 'virtual:drizzle-migrations.sql'
 
 interface BaseDB {
-  execute: (query: any) => Promise<any>
+  execute: (query: SQL) => Promise<unknown>
 }
 
-type PostgresDB = ReturnType<typeof drizzle> & BaseDB
+type PostgresDB = ReturnType<typeof drizzlePg> & BaseDB
 type PgliteDB = ReturnType<typeof drizzlePGlite> & BaseDB
 export type CoreDB = PostgresDB | PgliteDB
 
@@ -41,11 +43,10 @@ async function applyMigrations(logger: Logger, db: CoreDB, dbType: DatabaseType)
   }
 }
 
-export async function initDrizzle(logger: Logger) {
+export async function initDrizzle(logger: Logger, config: Config, dbPath?: string) {
   logger.log('Initializing database...')
 
   // Get configuration
-  const config = useConfig()
   const dbType = config.database.type || DatabaseType.POSTGRES
 
   logger.log(`Using database type: ${dbType}`)
@@ -63,13 +64,13 @@ export async function initDrizzle(logger: Logger) {
         },
       })
 
-      dbInstance = drizzle(client, { logger: flags.isDatabaseDebugMode }) as CoreDB
+      dbInstance = drizzlePg(client, { logger: flags.isDatabaseDebugMode }) as CoreDB
       break
     }
 
     case DatabaseType.PGLITE: {
       // Initialize PGlite database
-      const dbFilePath = getDatabaseFilePath(config)
+      const dbFilePath = dbPath || getDatabaseFilePath(config)
       logger.log(`Using PGlite database file: ${dbFilePath}`)
 
       try {

@@ -36,18 +36,12 @@ export const proxyConfigSchema = object({
 
 export const databaseConfigSchema = object({
   type: optional(enumType(DatabaseType), DatabaseType.POSTGRES),
-  host: optional(string(), 'localhost'),
-  port: optional(number(), 5432),
-  user: optional(string(), 'postgres'),
-  password: optional(string(), 'postgres'),
-  database: optional(string(), 'postgres'),
+  host: optional(string()),
+  port: optional(number()),
+  user: optional(string()),
+  password: optional(string()),
+  database: optional(string()),
   url: optional(string()),
-})
-
-export const pathConfigSchema = object({
-  storage: optional(string(), '.cache'),
-  dict: optional(string(), ''),
-  assets: optional(string(), ''),
 })
 
 export const telegramConfigSchema = object({
@@ -72,7 +66,6 @@ export const apiConfigSchema = object({
 
 export const configSchema = object({
   database: optional(databaseConfigSchema, {}),
-  path: optional(pathConfigSchema, {}),
   api: optional(apiConfigSchema, {}),
 })
 

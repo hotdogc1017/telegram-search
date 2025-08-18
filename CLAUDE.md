@@ -15,7 +15,7 @@ Telegram Search is a powerful Telegram chat history search tool with vector sear
 - `pnpm run dev:electron` - Start Electron desktop app
 
 ### Building and Testing
-- `pnpm run build:packages` - Build all packages in parallel
+- `pnpm run packages:build` - Build all packages in parallel
 - `pnpm run lint` - Run ESLint with cache
 - `pnpm run lint:fix` - Auto-fix ESLint issues
 - `pnpm run typecheck` - Run TypeScript type checking across all packages

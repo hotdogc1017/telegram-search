@@ -1,11 +1,12 @@
 import type { Config } from '@tg-search/common'
 
 import type { CoreContext } from './context'
+import type { SessionService } from './services/session'
 
 import { useLogger } from '@unbird/logg'
 
 import { useService } from './context'
-import { registerAuthEventHandlers } from './event-handlers/auth'
+import { registerBasicEventHandlers } from './event-handlers/auth'
 import { registerConfigEventHandlers } from './event-handlers/config'
 import { registerDialogEventHandlers } from './event-handlers/dialog'
 import { registerEntityEventHandlers } from './event-handlers/entity'
@@ -28,18 +29,20 @@ import { createEntityService } from './services/entity'
 import { createGramEventsService } from './services/gram-events'
 import { createMessageService } from './services/message'
 import { createMessageResolverService } from './services/message-resolver'
-import { createSessionService } from './services/session'
 import { createTakeoutService } from './services/takeout'
 
 type EventHandler<T = void> = (ctx: CoreContext, config: Config) => T
 
-export function authEventHandler(
+function isBrowser() {
+  return typeof window !== 'undefined'
+}
+
+export function basicEventHandler(
   ctx: CoreContext,
   config: Config,
 ): EventHandler {
   const registry = useMessageResolverRegistry()
 
-  const sessionService = useService(ctx, createSessionService)
   const connectionService = useService(ctx, createConnectionService)({
     apiId: Number(config.api.telegram.apiId),
     apiHash: config.api.telegram.apiHash,
@@ -54,11 +57,25 @@ export function authEventHandler(
   registry.register('embedding', createEmbeddingResolver())
   registry.register('jieba', createJiebaResolver())
 
-  registerAuthEventHandlers(ctx)(connectionService, sessionService)
-  registerSessionEventHandlers(ctx)(sessionService)
   registerStorageEventHandlers(ctx)
   registerConfigEventHandlers(ctx)(configService)
   registerMessageResolverEventHandlers(ctx)(messageResolverService)
+
+  ;(async () => {
+    let sessionService: SessionService
+
+    if (isBrowser()) {
+      const { createSessionService } = await import('./services/session.browser')
+      sessionService = useService(ctx, createSessionService)
+    }
+    else {
+      const { createSessionService } = await import('./services/session')
+      sessionService = useService(ctx, createSessionService)
+    }
+
+    registerBasicEventHandlers(ctx)(connectionService, sessionService)
+    registerSessionEventHandlers(ctx)(sessionService)
+  })()
 
   return () => {}
 }

@@ -9,8 +9,6 @@ import { ensureJieba } from '../utils/jieba'
 export function createJiebaResolver(): MessageResolver {
   const logger = useLogger('core:resolver:jieba')
 
-  const jieba = ensureJieba()
-
   return {
     run: async (opts: MessageResolverOpts) => {
       logger.verbose('Executing jieba resolver')
@@ -25,9 +23,16 @@ export function createJiebaResolver(): MessageResolver {
       if (messages.length === 0)
         return Err('No messages to parse')
 
+      // Initialize jieba asynchronously
+      const jieba = await ensureJieba()
+      if (!jieba) {
+        logger.warn('Jieba not available, skipping tokenization')
+        return Err('Jieba initialization failed')
+      }
+
       const jiebaMessages = messages.map((message) => {
         // Token without empty strings
-        const tokens = jieba?.cut(message.content).filter(token => !!token) || []
+        const tokens = jieba.cut(message.content).filter(token => !!token)
         logger.withFields({ message: message.content, tokens }).debug('Jieba tokens')
 
         return {

@@ -15,10 +15,10 @@ async function initCore(): Promise<ReturnType<typeof useLogger>> {
   parseEnvFlags(process.env as Record<string, string>)
   initLogger()
   const logger = useLogger()
-  await initConfig()
+  const config = await initConfig()
 
   try {
-    await initDrizzle(logger)
+    await initDrizzle(logger, config)
     logger.log('Database initialized successfully')
   }
   catch (error) {

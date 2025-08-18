@@ -1,8 +1,9 @@
+import type { Config } from '@tg-search/common'
+
 import type { CoreContext } from './context'
 
-import { useConfig } from '../../common/src/node'
 import { createCoreContext } from './context'
-import { afterConnectedEventHandler, authEventHandler, useEventHandler } from './event-handler'
+import { afterConnectedEventHandler, basicEventHandler, useEventHandler } from './event-handler'
 
 export interface ClientInstanceEventToCore {
   'core:cleanup': () => void
@@ -14,12 +15,11 @@ export interface ClientInstanceEventFromCore {
 
 export type ClientInstanceEvent = ClientInstanceEventFromCore & ClientInstanceEventToCore
 
-export function createCoreInstance(): CoreContext {
+export function createCoreInstance(config: Config): CoreContext {
   const ctx = createCoreContext()
-  const config = useConfig()
 
   const { register: registerEventHandler } = useEventHandler(ctx, config)
-  registerEventHandler(authEventHandler)
+  registerEventHandler(basicEventHandler)
   registerEventHandler(afterConnectedEventHandler)
 
   return ctx

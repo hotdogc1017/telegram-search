@@ -12,6 +12,7 @@
     "dev:frontend": "pnpm -F @tg-search/frontend dev",
     "dev:electron": "pnpm -F @tg-search/electron dev",
     "build:packages": "pnpm -rF=\"./packages/*\" --parallel build",
+    "packages:build": "pnpm -rF=\"./packages/*\" --parallel build",
     "test": "vitest",
     "lint": "eslint --cache .",
     "lint:fix": "eslint --cache . --fix",
@@ -22,14 +23,14 @@
     "db:migrate": "tsx scripts/db.ts migrate",
     "db:push": "tsx scripts/db.ts push",
     "db:kit": "tsx scripts/db.ts",
-    "postinstall": "pnpm build:packages"
+    "postinstall": "pnpm run packages:build"
   },
   "devDependencies": {
     "@proj-airi/unocss-preset-chromatic": "^1.0.0",
-    "@types/node": "^24.2.1",
-    "@unbird/eslint-config": "catalog:",
-    "@unbird/logg": "catalog:",
-    "bumpp": "^10.2.3",
+    "@types/node": "^24.2.0",
+    "@unbird/eslint-config": "^1.0.1",
+    "@unbird/logg": "^1.1.2",
+    "bumpp": "^10.2.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-kit": "^0.31.4",

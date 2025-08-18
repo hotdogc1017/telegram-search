@@ -2,7 +2,7 @@ import type { WsEventToClient, WsEventToClientData } from '@tg-search/server/typ
 
 import type { ClientSendEventFn } from '../stores/useWebsocket'
 
-import { registerAuthEventHandlers } from './auth'
+import { registerBasicEventHandlers } from './auth'
 import { registerConfigEventHandlers } from './config'
 import { registerDialogEventHandlers } from './dialog'
 import { registerEntityEventHandlers } from './entity'
@@ -35,7 +35,7 @@ export function registerAllEventHandlers(
   registerEventHandler: ClientRegisterEventHandlerFn,
 ) {
   registerServerEventHandlers(registerEventHandler)
-  registerAuthEventHandlers(registerEventHandler)
+  registerBasicEventHandlers(registerEventHandler)
   registerEntityEventHandlers(registerEventHandler)
   registerTakeoutEventHandlers(registerEventHandler)
   registerConfigEventHandlers(registerEventHandler)
