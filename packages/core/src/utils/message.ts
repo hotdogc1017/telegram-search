@@ -2,11 +2,10 @@ import type { Result } from '@unbird/result'
 
 import type { CoreMessageMediaFromServer } from './media'
 
-import { randomUUID } from 'node:crypto'
-
 import { Err, Ok } from '@unbird/result'
 import bigInt from 'big-integer'
 import { Api } from 'telegram'
+import { v4 as randomUUID } from 'uuid'
 
 import { parseMediaId, parseMediaType } from './media'
 
